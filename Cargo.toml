@@ -1,0 +1,16 @@
+[package]
+name = "bt_http_utils"
+version = "0.1.0"
+edition = "2021"
+authors = ["calvarez <calvarez@bachuetech.biz>"]
+description = "A simple HTTP wrapper to simplify POST and GET calls."
+keywords = ["http","client"]
+categories = ["web-programming::http-server","web-programming::http-client","web-programming"]
+repository = "https://github.com/bachuetech/"
+readme = "README.md"
+homepage = "https://github.com/bachuetech/"
+
+[dependencies]
+bt_logger = "0.2.1"
+reqwest = {version ="0.12.12", features = ["json","hickory-dns"] }
+tokio = { version = "1.43.0", features = ["full"] }
