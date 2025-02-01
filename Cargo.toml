@@ -9,6 +9,7 @@ categories = ["web-programming::http-server","web-programming::http-client","web
 repository = "https://github.com/bachuetech/bt_http_utils"
 readme = "README.md"
 homepage = "https://github.com/bachuetech/bt_http_utils"
+license = "GPL-3.0-only"
 
 [dependencies]
 bt_logger = "0.2.1"
