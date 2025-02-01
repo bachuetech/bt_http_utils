@@ -6,9 +6,9 @@ authors = ["calvarez <calvarez@bachuetech.biz>"]
 description = "A simple HTTP wrapper to simplify POST and GET calls."
 keywords = ["http","client"]
 categories = ["web-programming::http-server","web-programming::http-client","web-programming"]
-repository = "https://github.com/bachuetech/"
+repository = "https://github.com/bachuetech/bt_http_utils"
 readme = "README.md"
-homepage = "https://github.com/bachuetech/"
+homepage = "https://github.com/bachuetech/bt_http_utils"
 
 [dependencies]
 bt_logger = "0.2.1"
