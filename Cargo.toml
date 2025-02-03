@@ -1,9 +1,9 @@
 [package]
 name = "bt_http_utils"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2021"
 authors = ["calvarez <calvarez@bachuetech.biz>"]
-description = "A simple HTTP wrapper to simplify POST and GET calls."
+description = "A simple HTTP wrapper to simplify POST and GET calls. Default headers with set and get headers."
 keywords = ["http","client"]
 categories = ["web-programming::http-server","web-programming::http-client","web-programming"]
 repository = "https://github.com/bachuetech/bt_http_utils"

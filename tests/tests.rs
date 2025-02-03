@@ -90,7 +90,7 @@ async fn test_text_post_hickory(){
 #[tokio::test]
 async fn test_json_post_hickory_fail(){
     const SERVER: &str = "http://localhost";
-    
+
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
 
     let url = format!("{}/test_post_fake.php",SERVER);
@@ -99,4 +99,30 @@ async fn test_json_post_hickory_fail(){
     let resp = http_client.post(&url, "", ContentType::JSON).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().is_error(),true);
+}
+
+#[test]
+fn test_set_headers(){
+    let header_val =  "HEADER_VALUE";
+    let header_name = "bt_header";
+
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    let mut http_client = HttpClient::new(false);
+    http_client.set_header(&header_name, &header_val);
+
+    println!("Headers: {:?}",&http_client.get_default_heathers());
+    assert_eq!(http_client.get_default_heathers().get(header_name).unwrap(),header_val); 
+}
+
+#[test]
+fn test_change_headers(){
+    let header_val =  "HEADER_VALUE";
+    let header_name = "user-agent";
+
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    let mut http_client = HttpClient::new(false);
+    http_client.set_header(&header_name, &header_val);
+
+    println!("Headers: {:?}",&http_client.get_default_heathers());
+    assert_eq!(http_client.get_default_heathers().get(header_name).unwrap(),header_val); 
 }

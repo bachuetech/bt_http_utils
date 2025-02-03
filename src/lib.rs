@@ -1,10 +1,11 @@
-use std::{collections::HashMap, io::{Error, ErrorKind}};
+use std::{collections::HashMap, io::{Error, ErrorKind}, str::FromStr};
 
 use bt_logger::{get_error, log_error, log_trace};
-use reqwest::{header::{self, HeaderMap}, Client, Response, StatusCode};
+use reqwest::{header::{self, HeaderMap, HeaderName, HeaderValue}, Client, Response, StatusCode};
 
 pub struct HttpClient {
     client: Client,
+    headers: HeaderMap,
 }
 
 
@@ -29,15 +30,28 @@ impl HttpClient {
             Client::builder().hickory_dns(true).build().unwrap()
         };
 
+        let mut h =  HeaderMap::new();
+        h.insert(header::USER_AGENT, HeaderValue::from_static("Mozilla/5.0 (compatible; BachueTech/1.0)"));
+
         Self {
                 client: c,
+                headers: h,
         }
+    }
+
+    pub fn set_header(&mut self, header_name: &str, header_value: &str) {
+        self.headers.insert(HeaderName::from_str(&header_name).unwrap(), HeaderValue::from_str(&header_value).unwrap());
+    }
+
+    pub fn get_default_heathers(&self) -> HashMap<String, String>{
+        Self::convert_headers(&self.headers)
     }
 
     pub async fn get(&self, url: &str) -> Result<HttpResponse, Error> {
         match self
             .client
-            .get( url)
+            .get(url)
+            .headers(self.headers.clone())
             .send()
             .await
             {
@@ -48,10 +62,12 @@ impl HttpClient {
 
     pub async fn post(&self, url: &str, body_request: &str, content_type: ContentType) -> Result<HttpResponse, Error>{
         log_trace!("post","Getting {} with payload: {}", url, body_request);
+        let mut local_headers = self.headers.clone();
         match content_type{
-            ContentType::JSON =>    {match self.client
+            ContentType::JSON =>    {local_headers.insert(header::CONTENT_TYPE, HeaderValue::from_str("application/json").unwrap());
+                                        match self.client
                                         .post(url)
-                                        .header(header::CONTENT_TYPE, "application/json")
+                                        .headers(local_headers)
                                         .body(body_request.to_owned())
                                         .send()
                                         .await {
@@ -59,8 +75,10 @@ impl HttpClient {
                                             Err(e )=> return Err(Error::new(ErrorKind::Other,get_error!("get","Failed to get response from POST(JSON): {}. Error: {}",url,e.to_string()))),
                                         }
                                     },
-            ContentType::TEXT =>    {match self.client
+            ContentType::TEXT =>    {local_headers.insert(header::CONTENT_TYPE, HeaderValue::from_str("application/text").unwrap());
+                                        match self.client
                                         .post(url)
+                                        .headers(local_headers)
                                         .body(body_request.to_string())
                                         .send()
                                         .await{
