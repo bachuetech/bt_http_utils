@@ -1,10 +1,12 @@
 use bt_http_utils::{self, ContentType, HttpClient};
 use bt_logger::{build_logger, LogLevel, LogTarget};
 
-const SERVER: &str = "http://192.168.117.35";
+
 
 #[tokio::test]
 async fn test_plain_get_no_hickory(){
+    const SERVER: &str = "http://localhost";
+
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
     
     let test_content = "Hello World!";
@@ -18,6 +20,8 @@ async fn test_plain_get_no_hickory(){
 
 #[tokio::test]
 async fn test_plain_get_hickory(){
+    const SERVER: &str = "http://localhost";
+
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
     
     let test_content = "Hello World!";
@@ -51,6 +55,8 @@ async fn test_plain_get_fail(){
 
 #[tokio::test]
 async fn test_json_post_hickory(){
+    const SERVER: &str = "http://localhost";
+
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
     
     let test_content = "Hello Bachuetech";
@@ -65,6 +71,8 @@ async fn test_json_post_hickory(){
 
 #[tokio::test]
 async fn test_text_post_hickory(){
+    const SERVER: &str = "http://localhost";
+
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
     
     let test_content = "Hello Bachuetech";
@@ -81,6 +89,8 @@ async fn test_text_post_hickory(){
 
 #[tokio::test]
 async fn test_json_post_hickory_fail(){
+    const SERVER: &str = "http://localhost";
+    
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
 
     let url = format!("{}/test_post_fake.php",SERVER);
