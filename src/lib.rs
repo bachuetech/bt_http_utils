@@ -43,7 +43,7 @@ impl HttpClient {
         self.headers.insert(HeaderName::from_str(&header_name).unwrap(), HeaderValue::from_str(&header_value).unwrap());
     }
 
-    pub fn get_default_heathers(&self) -> HashMap<String, String>{
+    pub fn get_default_headers(&self) -> HashMap<String, String>{
         Self::convert_headers(&self.headers)
     }
 
@@ -92,7 +92,7 @@ impl HttpClient {
 
     async fn extract_response(resp: Response, url: &str, method: &str) -> HttpResponse{
         if resp.status().is_client_error() || resp.status().is_server_error() {
-            log_error!("extract_response", "ERROR: Failed to get response from {}: {} Satus Code: {}", method, url, resp.status());
+            log_error!("extract_response", "ERROR: Failed to get response from {}: {} Status Code: {}", method, url, resp.status());
             return HttpResponse{
                 status_code: resp.status().as_u16(),
                 header: Self::convert_headers(resp.headers()),

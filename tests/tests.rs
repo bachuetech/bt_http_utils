@@ -110,8 +110,8 @@ fn test_set_headers(){
     let mut http_client = HttpClient::new(false);
     http_client.set_header(&header_name, &header_val);
 
-    println!("Headers: {:?}",&http_client.get_default_heathers());
-    assert_eq!(http_client.get_default_heathers().get(header_name).unwrap(),header_val); 
+    println!("Headers: {:?}",&http_client.get_default_headers());
+    assert_eq!(http_client.get_default_headers().get(header_name).unwrap(),header_val); 
 }
 
 #[test]
@@ -123,6 +123,6 @@ fn test_change_headers(){
     let mut http_client = HttpClient::new(false);
     http_client.set_header(&header_name, &header_val);
 
-    println!("Headers: {:?}",&http_client.get_default_heathers());
-    assert_eq!(http_client.get_default_heathers().get(header_name).unwrap(),header_val); 
+    println!("Headers: {:?}",&http_client.get_default_headers());
+    assert_eq!(http_client.get_default_headers().get(header_name).unwrap(),header_val); 
 }

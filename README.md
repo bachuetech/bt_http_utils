@@ -24,6 +24,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * Initial Release
 * 0.2.0
     * Include set and get default headers
+* 0.2.1
+    * Fix typos
 
 ## License
 GPL-3.0-only
