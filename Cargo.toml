@@ -1,9 +1,9 @@
 [package]
 name = "bt_http_utils"
-version = "0.2.1"
+version = "0.3.0"
 edition = "2021"
 authors = ["calvarez <calvarez@bachuetech.biz>"]
-description = "A simple HTTP wrapper to simplify POST and GET calls. Default headers with set and get headers."
+description = "A simple HTTP wrapper to simplify POST and GET calls. Default headers with set and get headers. Support cookies"
 keywords = ["http","client"]
 categories = ["web-programming::http-server","web-programming::http-client","web-programming"]
 repository = "https://github.com/bachuetech/bt_http_utils"
@@ -13,5 +13,5 @@ license = "GPL-3.0-only"
 
 [dependencies]
 bt_logger = "0.2.1"
-reqwest = {version ="0.12.12", features = ["json","hickory-dns"] }
+reqwest = {version ="0.12.12", features = ["json","hickory-dns","cookies"] }
 tokio = { version = "1.43.0", features = ["full"] }

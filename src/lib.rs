@@ -1,7 +1,7 @@
-use std::{collections::HashMap, io::{Error, ErrorKind}, str::FromStr};
+use std::{collections::HashMap, io::{Error, ErrorKind}, str::FromStr, sync::Arc};
 
 use bt_logger::{get_error, log_error, log_trace};
-use reqwest::{header::{self, HeaderMap, HeaderName, HeaderValue}, Client, Response, StatusCode};
+use reqwest::{cookie::Jar, header::{self, HeaderMap, HeaderName, HeaderValue}, Client, Response, StatusCode};
 
 pub struct HttpClient {
     client: Client,
@@ -22,12 +22,23 @@ pub enum ContentType{
 }
 
 impl HttpClient {
-    pub fn new(use_hickory_dns: bool) -> Self {
+    pub fn new(use_hickory_dns: bool, use_cookies: bool) -> Self {
+        
+
         let c =             
-        if use_hickory_dns{
-            Client::new()
+        if use_cookies {
+            let cookie_store = Arc::new(Jar::default());
+
+            Client::builder()
+                    .cookie_store(true)
+                    .cookie_provider(cookie_store.clone())
+                    .hickory_dns(use_hickory_dns)
+                    .build().unwrap()
         }else{
-            Client::builder().hickory_dns(true).build().unwrap()
+            Client::builder()
+                    .cookie_store(false)
+                    .hickory_dns(use_hickory_dns)
+                    .build().unwrap()
         };
 
         let mut h =  HeaderMap::new();

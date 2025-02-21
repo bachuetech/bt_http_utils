@@ -6,7 +6,7 @@ A simple HTTP wrapper to simplify POST and GET calls.
 
 ## Usage
 ```
-    let http_client = HttpClient::new(false);
+    let http_client = HttpClient::new(false, false);
 
     let resp_get = http_client.get(&url).await; 
     let resp_post_txt = http_client.post(&url, body, ContentType::TEXT).await;
@@ -26,6 +26,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * Include set and get default headers
 * 0.2.1
     * Fix typos
+* 0.3.0
+    * Breking Change. Support for cookies. HttpClient::new(use hickory dns, use cookies)
 
 ## License
 GPL-3.0-only
