@@ -1,3 +1,5 @@
+use std::collections::HashMap;
+
 use bt_http_utils::{self, ContentType, HttpClient};
 use bt_logger::{build_logger, LogLevel, LogTarget};
 
@@ -13,7 +15,24 @@ async fn test_plain_get_no_hickory(){
     let url = format!("{}/test_get.html",SERVER);
 
     let http_client = HttpClient::new(false, true);
-    let resp = http_client.get(&url).await;
+    let resp = http_client.get(&url, None).await;
+    println!("Body: {:?}",&resp);
+    assert_eq!(resp.unwrap().body,test_content);
+}
+
+#[tokio::test]
+async fn test_plain_get_no_hickory_new_header(){
+    const SERVER: &str = "http://localhost";
+
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    
+    let test_content = "Hello World!";
+    let url = format!("{}/test_get.html",SERVER);
+    let mut extra: HashMap<&str, &str> = HashMap::new();
+    extra.insert("btai_session_id", "A_12dkk3dsd");
+
+    let http_client = HttpClient::new(false, true);
+    let resp = http_client.get(&url, Some(extra)).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -28,7 +47,7 @@ async fn test_plain_get_hickory(){
     let url = format!("{}/test_get.html",SERVER);
 
     let http_client = HttpClient::new(true, true);
-    let resp = http_client.get(&url).await;
+    let resp = http_client.get(&url, None).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -38,7 +57,7 @@ async fn test_plain_get_dns_fail(){
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
     
     let http_client = HttpClient::new(false, true);
-    let resp = http_client.get("http://http://www.google.com/page/").await;
+    let resp = http_client.get("http://http://www.google.com/page/", None).await;
     println!("Staus: {:?}",&resp);
     assert_eq!(resp.is_err(),true);
 }
@@ -48,7 +67,7 @@ async fn test_plain_get_fail(){
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
     
     let http_client = HttpClient::new(false, true);
-    let resp = http_client.get("http:/www.google.com/page/").await;
+    let resp = http_client.get("http:/www.google.com/page/", None).await;
     println!("Staus: {:?}",&resp);
     assert_eq!(resp.unwrap().is_error(),true);
 }
@@ -64,7 +83,7 @@ async fn test_json_post_hickory(){
     let url = format!("{}/test_post.php",SERVER);
 
     let http_client = HttpClient::new(true, true);
-    let resp = http_client.post(&url, body, ContentType::JSON).await;
+    let resp = http_client.post(&url, None, body, ContentType::JSON).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -80,7 +99,28 @@ async fn test_text_post_hickory(){
     let url = format!("{}/test_post.php",SERVER);
 
     let http_client = HttpClient::new(true, true);
-    let resp = http_client.post(&url, body, ContentType::TEXT).await;
+    let resp = http_client.post(&url, None, body, ContentType::TEXT).await;
+    println!("Body: {:?}",&resp); 
+
+
+    assert_eq!(resp.unwrap().body,test_content);
+}
+
+#[tokio::test]
+async fn test_text_post_hickory_extra_headers(){
+    const SERVER: &str = "http://localhost";
+
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    
+    let test_content = "Hello Bachuetech";
+    let body = "{\"name\":\"Bachuetech\"}";
+    let url = format!("{}/test_post.php",SERVER);
+
+    let mut extra: HashMap<&str, &str> = HashMap::new();
+    extra.insert("btai_session_id", "A_12dkk3dsd");
+
+    let http_client = HttpClient::new(true, true);
+    let resp = http_client.post(&url, Some(extra), body, ContentType::TEXT).await;
     println!("Body: {:?}",&resp); 
 
 
@@ -96,7 +136,7 @@ async fn test_json_post_hickory_fail(){
     let url = format!("{}/test_post_fake.php",SERVER);
 
     let http_client = HttpClient::new(true, true);
-    let resp = http_client.post(&url, "", ContentType::JSON).await;
+    let resp = http_client.post(&url, None, "", ContentType::JSON).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().is_error(),true);
 }
@@ -138,7 +178,7 @@ async fn test_plain_get_no_hickory_nc(){
     let url = format!("{}/test_get.html",SERVER);
 
     let http_client = HttpClient::new(false, false);
-    let resp = http_client.get(&url).await;
+    let resp = http_client.get(&url, None).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -153,7 +193,7 @@ async fn test_plain_get_hickory_nc(){
     let url = format!("{}/test_get.html",SERVER);
 
     let http_client = HttpClient::new(true, false);
-    let resp = http_client.get(&url).await;
+    let resp = http_client.get(&url, None).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -163,7 +203,7 @@ async fn test_plain_get_dns_fail_nc(){
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
     
     let http_client = HttpClient::new(false, false);
-    let resp = http_client.get("http://http://www.google.com/page/").await;
+    let resp = http_client.get("http://http://www.google.com/page/", None).await;
     println!("Staus: {:?}",&resp);
     assert_eq!(resp.is_err(),true);
 }
@@ -173,7 +213,7 @@ async fn test_plain_get_fail_nc(){
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
     
     let http_client = HttpClient::new(false, false);
-    let resp = http_client.get("http:/www.google.com/page/").await;
+    let resp = http_client.get("http:/www.google.com/page/", None).await;
     println!("Staus: {:?}",&resp);
     assert_eq!(resp.unwrap().is_error(),true);
 }
@@ -189,7 +229,7 @@ async fn test_json_post_hickory_nc(){
     let url = format!("{}/test_post.php",SERVER);
 
     let http_client = HttpClient::new(true, false);
-    let resp = http_client.post(&url, body, ContentType::JSON).await;
+    let resp = http_client.post(&url, None, body, ContentType::JSON).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -205,7 +245,7 @@ async fn test_text_post_hickory_nc(){
     let url = format!("{}/test_post.php",SERVER);
 
     let http_client = HttpClient::new(true, false);
-    let resp = http_client.post(&url, body, ContentType::TEXT).await;
+    let resp = http_client.post(&url, None, body, ContentType::TEXT).await;
     println!("Body: {:?}",&resp); 
 
 
@@ -221,7 +261,7 @@ async fn test_json_post_hickory_fail_nc(){
     let url = format!("{}/test_post_fake.php",SERVER);
 
     let http_client = HttpClient::new(true, false);
-    let resp = http_client.post(&url, "", ContentType::JSON).await;
+    let resp = http_client.post(&url, None, "", ContentType::JSON).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().is_error(),true);
 }
@@ -251,3 +291,4 @@ fn test_change_headers_nc(){
     println!("Headers: {:?}",&http_client.get_default_headers());
     assert_eq!(http_client.get_default_headers().get(header_name).unwrap(),header_val); 
 }
+

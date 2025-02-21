@@ -23,8 +23,6 @@ pub enum ContentType{
 
 impl HttpClient {
     pub fn new(use_hickory_dns: bool, use_cookies: bool) -> Self {
-        
-
         let c =             
         if use_cookies {
             let cookie_store = Arc::new(Jar::default());
@@ -40,7 +38,6 @@ impl HttpClient {
                     .hickory_dns(use_hickory_dns)
                     .build().unwrap()
         };
-
         let mut h =  HeaderMap::new();
         h.insert(header::USER_AGENT, HeaderValue::from_static("Mozilla/5.0 (compatible; BachueTech/1.0)"));
 
@@ -58,11 +55,26 @@ impl HttpClient {
         Self::convert_headers(&self.headers)
     }
 
-    pub async fn get(&self, url: &str) -> Result<HttpResponse, Error> {
+    fn get_extra_headers(&self, extra_headers: Option<HashMap<&str, &str>>) -> HeaderMap{
+        let mut local_headers = self.headers.clone();
+        if let Some(new_headers) = extra_headers {
+            // Add headers from HashMap into the existing HeaderMap
+            for (key, value) in new_headers {
+                local_headers.insert(HeaderName::from_str(&key).unwrap(), HeaderValue::from_str(value).unwrap());
+            }
+        }
+
+        local_headers
+    }
+
+    pub async fn get(&self, url: &str, extra_headers: Option<HashMap<&str, &str>>) -> Result<HttpResponse, Error> {
+        let local_headers = self.get_extra_headers(extra_headers);
+
+
         match self
             .client
             .get(url)
-            .headers(self.headers.clone())
+            .headers(local_headers)
             .send()
             .await
             {
@@ -71,9 +83,9 @@ impl HttpClient {
             }
     }
 
-    pub async fn post(&self, url: &str, body_request: &str, content_type: ContentType) -> Result<HttpResponse, Error>{
+    pub async fn post(&self, url: &str, extra_headers: Option<HashMap<&str, &str>>, body_request: &str, content_type: ContentType) -> Result<HttpResponse, Error>{
         log_trace!("post","Getting {} with payload: {}", url, body_request);
-        let mut local_headers = self.headers.clone();
+        let mut local_headers = self.get_extra_headers(extra_headers); //self.headers.clone();
         match content_type{
             ContentType::JSON =>    {local_headers.insert(header::CONTENT_TYPE, HeaderValue::from_str("application/json").unwrap());
                                         match self.client

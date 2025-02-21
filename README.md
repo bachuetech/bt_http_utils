@@ -8,9 +8,9 @@ A simple HTTP wrapper to simplify POST and GET calls.
 ```
     let http_client = HttpClient::new(false, false);
 
-    let resp_get = http_client.get(&url).await; 
-    let resp_post_txt = http_client.post(&url, body, ContentType::TEXT).await;
-    let resp_post_json = http_client.post(&url, body, ContentType::JSON).await;
+    let resp_get = http_client.get(&url, None).await; 
+    let resp_post_txt = http_client.post(&url, None, body, ContentType::TEXT).await;
+    let resp_post_json = http_client.post(&url, None, body, ContentType::JSON).await;
 
     ///Fields available
     resp.unwrap().body;
@@ -27,7 +27,9 @@ A simple HTTP wrapper to simplify POST and GET calls.
 * 0.2.1
     * Fix typos
 * 0.3.0
-    * Breking Change. Support for cookies. HttpClient::new(use hickory dns, use cookies)
+    * Breaking  Change. Support for cookies. HttpClient::new(use hickory dns, use cookies)
+* 0.4.0
+    * Breaking  Change. Support for extra headers in get and post calls    
 
 ## License
 GPL-3.0-only
