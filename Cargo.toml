@@ -1,6 +1,6 @@
 [package]
 name = "bt_http_utils"
-version = "0.4.0"
+version = "0.4.1"
 edition = "2021"
 authors = ["calvarez <calvarez@bachuetech.biz>"]
 description = "A simple HTTP wrapper to simplify POST and GET calls. Default headers with set and get headers. Support cookies"

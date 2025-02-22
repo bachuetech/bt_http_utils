@@ -95,7 +95,7 @@ impl HttpClient {
                                         .send()
                                         .await {
                                             Ok(resp) => return Ok(Self::extract_response(resp, url, "POST").await),
-                                            Err(e )=> return Err(Error::new(ErrorKind::Other,get_error!("get","Failed to get response from POST(JSON): {}. Error: {}",url,e.to_string()))),
+                                            Err(e )=> return Err(Error::new(ErrorKind::Other,get_error!("post","Failed to get response from POST(JSON): {}. Error: {}",url,e.to_string()))),
                                         }
                                     },
             ContentType::TEXT =>    {local_headers.insert(header::CONTENT_TYPE, HeaderValue::from_str("application/text").unwrap());
@@ -106,7 +106,7 @@ impl HttpClient {
                                         .send()
                                         .await{
                                             Ok(resp) => return Ok(Self::extract_response(resp, url, "POST").await),
-                                            Err(e )=> return Err(Error::new(ErrorKind::Other,get_error!("get","Failed to get response from POST (TEXT): {}. Error: {}",url,e.to_string()))),
+                                            Err(e )=> return Err(Error::new(ErrorKind::Other,get_error!("post","Failed to get response from POST (TEXT): {}. Error: {}",url,e.to_string()))),
                                         }
                                     },
         }

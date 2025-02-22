@@ -30,6 +30,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * Breaking  Change. Support for cookies. HttpClient::new(use hickory dns, use cookies)
 * 0.4.0
     * Breaking  Change. Support for extra headers in get and post calls    
+* 0.4.1
+    * Fix content of error message   
 
 ## License
 GPL-3.0-only
