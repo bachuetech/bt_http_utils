@@ -31,7 +31,9 @@ A simple HTTP wrapper to simplify POST and GET calls.
 * 0.4.0
     * Breaking  Change. Support for extra headers in get and post calls    
 * 0.4.1
-    * Fix content of error message   
+    * Fix content of error message
+* 0.5.0
+    * Added Request generic function for GET, POST, PUT, PATCH, and DELETE. Clean code. New test cases. Update dependencies.
 
 ## License
 GPL-3.0-only
