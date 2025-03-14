@@ -34,6 +34,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * Fix content of error message
 * 0.5.0
     * Added Request generic function for GET, POST, PUT, PATCH, and DELETE. Clean code. New test cases. Update dependencies.
+* 0.5.1
+    * Change data type in request function to HashMap<String, String> instead of HashMap<&str, &str>
 
 ## License
 GPL-3.0-only

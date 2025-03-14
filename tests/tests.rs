@@ -37,8 +37,8 @@ async fn test_request_post_no_hickory(){
     
     let url = format!("{}/uh/api.php/users/",SERVER);
 
-    let mut param: HashMap<&str, &str> = HashMap::new();
-    param.insert("name", "C.Brown");
+    let mut param: HashMap<String, String> = HashMap::new();
+    param.insert("name".to_string(), "C.Brown".to_string());
     let test_content = "{\"id\":3,\"name\":\"C.Brown\"}";
 
     let http_client = HttpClient::new(false, true);
@@ -66,8 +66,8 @@ async fn test_request_delete_qry_param_no_hickory(){
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
     
     let test_content = "{\"status\":\"success\",\"message\":\"User deleted\"}";
-    let mut param: HashMap<&str, &str> = HashMap::new();
-    param.insert("userid", "1");
+    let mut param: HashMap<String, String> = HashMap::new();
+    param.insert("userid".to_string(), "1".to_string());
     let url = format!("{}/uh/api.php/delete/{{userid}}",SERVER);
 
     let http_client = HttpClient::new(false, true);
@@ -133,8 +133,8 @@ async fn test_request_get_qry_param_no_hickory(){
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
     
     let test_content = "{\"id\":2,\"userId\":2}";
-    let mut param: HashMap<&str, &str> = HashMap::new();
-    param.insert("id", "2");
+    let mut param: HashMap<String, String> = HashMap::new();
+    param.insert("id".to_string(), "2".to_string());
 
     let url = format!("{}/uh/api.php/get/{{id}}",SERVER);
 

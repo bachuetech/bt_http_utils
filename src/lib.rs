@@ -176,10 +176,10 @@ impl HttpClient {
 
 ///Method: request
 /// The request method is used to make a request to a specific URL using a specific HTTP method: currently tested, get, post, put, delete, patch, delete
-/// It takes six parameters: request_method, url_with_ep_path, extra_headers, body_params, query_params, and content_type. 
+/// It takes six parameters: request_method, url_with_ep_path (URL with endpoint: path, path parameters), extra_headers, body_params, query_params, and content_type. 
 /// The method returns an HttpResponse instance containing the response from the request.
-    pub async fn request( &self, request_method: &str, url_with_ep_path: &str, extra_headers: Option<HashMap<&str, &str>>, body_params: Option<HashMap<&str, &str>>, 
-                        query_params: Option<HashMap<&str, &str>>, content_type: ContentType, ) -> Result<HttpResponse, Box<dyn std::error::Error>> {
+    pub async fn request( &self, request_method: &str, url_with_ep_path: &str, extra_headers: Option<HashMap<&str, &str>>, body_params: Option<HashMap<String, String>>, 
+                        query_params: Option<HashMap<String, String>>, content_type: ContentType, ) -> Result<HttpResponse, Box<dyn std::error::Error>> {
         let method = match request_method.to_uppercase().as_str() {
             "GET" => Method::GET,
             "POST" => Method::POST,
@@ -190,7 +190,7 @@ impl HttpClient {
         };
 
         let mut url = url_with_ep_path.to_string();
-        let mut qry_params: HashMap<&str, &str>;
+        let mut qry_params: HashMap<String, String>;
 
         // Handle path parameters
         if let Some(path_params) = query_params {
@@ -198,7 +198,7 @@ impl HttpClient {
             for path_param in path_params {
                 if url.contains(&format!("{{{}}}", &path_param.0)) {
                     url = url.replace(&format!("{{{}}}", &path_param.0), &path_param.1);
-                    qry_params.remove(path_param.0); //Remove used path_param to use remaining params as query parameters
+                    qry_params.remove(&path_param.0); //Remove used path_param to use remaining params as query parameters
                 } else {
                     return Err(format!(
                         "Required path parameter '{:?}' not provided",
