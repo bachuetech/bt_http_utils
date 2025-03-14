@@ -36,6 +36,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * Added Request generic function for GET, POST, PUT, PATCH, and DELETE. Clean code. New test cases. Update dependencies.
 * 0.5.1
     * Change data type in request function to HashMap<String, String> instead of HashMap<&str, &str>
+* 0.5.2
+    * Fix issues with query parameters and request with content type TEXT
 
 ## License
 GPL-3.0-only

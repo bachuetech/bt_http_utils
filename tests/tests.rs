@@ -48,6 +48,25 @@ async fn test_request_post_no_hickory(){
     assert_eq!(resp.unwrap().body,test_content);
 }
 
+
+#[tokio::test]
+async fn test_request_post_text_no_hickory(){
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    
+    let url = format!("{}/uh/apitxt1.php/users/",SERVER);
+
+    let mut param: HashMap<String, String> = HashMap::new();
+    param.insert("name".to_string(), "John".to_string());
+    param.insert("last_name".to_string(), "Smith".to_string());
+    let test_content = "John Smith";
+
+    let http_client = HttpClient::new(false, true);
+
+    let resp = http_client.request("post",&url, None, Some(param), None, ContentType::TEXT).await;
+    println!("Body: {:?}",&resp);
+    assert_eq!(resp.unwrap().body,test_content);
+}
+
 #[tokio::test]
 async fn test_request_delete_direct_param_no_hickory(){
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
@@ -135,6 +154,23 @@ async fn test_request_get_qry_param_no_hickory(){
     let test_content = "{\"id\":2,\"userId\":2}";
     let mut param: HashMap<String, String> = HashMap::new();
     param.insert("id".to_string(), "2".to_string());
+
+    let url = format!("{}/uh/api.php/get/{{id}}",SERVER);
+
+    let http_client = HttpClient::new(false, true);
+    let resp = http_client.request("get",&url, None, None, Some(param), ContentType::JSON).await;
+    println!("Body: {:?}",&resp);
+    assert_eq!(resp.unwrap().body,test_content);
+}
+
+#[tokio::test]
+async fn test_request_get_extra_qry_param_no_hickory(){
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    
+    let test_content = "{\"id\":2,\"userId\":2}";
+    let mut param: HashMap<String, String> = HashMap::new();
+    param.insert("id".to_string(), "2".to_string());
+    param.insert("qry".to_string(), "Extra".to_string());
 
     let url = format!("{}/uh/api.php/get/{{id}}",SERVER);
 

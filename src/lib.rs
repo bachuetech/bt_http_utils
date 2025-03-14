@@ -6,7 +6,7 @@ use std::{
     collections::HashMap, io::{Error, ErrorKind}, str::FromStr, sync::Arc
 };
 
-use bt_logger::{get_error, log_error};
+use bt_logger::{get_error, log_debug, log_error, log_verbose};
 use reqwest::{
     cookie::Jar,
     header::{self, HeaderMap, HeaderName, HeaderValue},
@@ -87,6 +87,7 @@ impl HttpClient {
         Self::convert_headers(&self.headers)
     }
 
+    ///Helper Method: Merge current/default headers with extra headers
     fn get_extra_headers(&self, extra_headers: Option<HashMap<&str, &str>>) -> HeaderMap {
         let mut local_headers = self.headers.clone();
         if let Some(new_headers) = extra_headers {
@@ -116,15 +117,7 @@ impl HttpClient {
         match self.client.get(url).headers(local_headers).send().await {
             Ok(resp) => return Ok(Self::extract_response(resp, url, "GET").await),
             Err(e) => {
-                return Err(Error::new(
-                    ErrorKind::Other,
-                    get_error!(
-                        "get",
-                        "Failed to get response from GET: {}. Error: {}",
-                        url,
-                        e.to_string()
-                    ),
-                ))
+                return Err(Error::new( ErrorKind::Other, get_error!( "get", "Failed to get response from GET: {}. Error: {}", url, e.to_string() ), ))
             }
         }
     }
@@ -163,12 +156,7 @@ impl HttpClient {
             Err(e) => {
                 return Err(Error::new(
                     ErrorKind::Other,
-                    get_error!(
-                        "post",
-                        "Failed to get response from POST (TEXT): {}. Error: {}",
-                        url,
-                        e.to_string()
-                    ),
+                    get_error!( "post", "Failed to get response from POST (TEXT): {}. Error: {}", url, e.to_string() ),
                 ))
             }
         }
@@ -200,11 +188,7 @@ impl HttpClient {
                     url = url.replace(&format!("{{{}}}", &path_param.0), &path_param.1);
                     qry_params.remove(&path_param.0); //Remove used path_param to use remaining params as query parameters
                 } else {
-                    return Err(format!(
-                        "Required path parameter '{:?}' not provided",
-                        &path_param.0
-                    )
-                    .into());
+                    log_debug!("request","Path parameter '{:?}' not provided. Parameter will be used as Query parameter", &path_param.0);
                 }
             }
         }else{
@@ -229,6 +213,10 @@ impl HttpClient {
             }
         }
 
+        if !url.ends_with('/') && qry_params.len() > 0 {
+            url = format!("{}{}",url,"/");
+        }
+
         let mut request = self.client.request(method.clone(), &url).headers(local_headers);
         if method == Method::GET{
             request = request.query(&qry_params); // Use remaining params as query parameters if any
@@ -237,10 +225,11 @@ impl HttpClient {
                     match content_type {
                         ContentType::JSON => request = request.json(&b_params),
                         _ => {let body_data = b_params
-                            .iter()
-                            .map(|(k, v)| format!("{}={}", k, v))
-                            .collect::<Vec<String>>()
-                            .join(", ");
+                                .iter()
+                                .map(|(k, v)| format!("{}={}", k, v))
+                                .collect::<Vec<String>>()
+                                .join("&");
+                                log_verbose!("request","TEXT: Body {}",&body_data);
                                 request = request.body(body_data)
                             }
 
@@ -254,7 +243,7 @@ impl HttpClient {
         {
             Ok(resp) => return Ok(Self::extract_response(resp, &url, request_method.to_uppercase().as_str()).await),
             Err(e) => {
-                return Err(get_error!( "post", "Failed to get response from {} ({:?}): {}. Error: {}", &method, content_type, url, e.to_string())
+                return Err(get_error!( "request", "Failed to get response from {} ({:?}): {}. Error: {}", &method, content_type, url, e.to_string())
                                     .into())
             }
         }
