@@ -38,6 +38,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * Change data type in request function to HashMap<String, String> instead of HashMap<&str, &str>
 * 0.5.2
     * Fix issues with query parameters and request with content type TEXT
+* 0.5.3
+    * Breaking change: Extra headers change to HashMap<String, String> from HashMap<&str, &str>. Update to Rust 2024 Edition.
 
 ## License
 GPL-3.0-only

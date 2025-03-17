@@ -1,3 +1,5 @@
+#[cfg(test)]
+mod http_utils_tests {
 use std::collections::HashMap;
 
 use bt_http_utils::{self, ContentType, HttpClient};
@@ -204,8 +206,8 @@ async fn test_plain_get_no_hickory_new_header(){
     
     let test_content = "Hello World!";
     let url = format!("{}/test_get.html",SERVER);
-    let mut extra: HashMap<&str, &str> = HashMap::new();
-    extra.insert("btai_session_id", "A_12dkk3dsd");
+    let mut extra: HashMap<String, String> = HashMap::new();
+    extra.insert("btai_session_id".to_string(), "A_12dkk3dsd".to_string());
 
     let http_client = HttpClient::new(false, true);
     let resp = http_client.get(&url, Some(extra)).await;
@@ -222,8 +224,8 @@ async fn test_plain_get_hickory_new_header(){
     
     let test_content = "Hello World! BachueTech!";
     let url = format!("{}/test_get.php",SERVER);
-    let mut extra: HashMap<&str, &str> = HashMap::new();
-    extra.insert("Last-Name", "BachueTech");
+    let mut extra: HashMap<String, String> = HashMap::new();
+    extra.insert("Last-Name".to_string(), "BachueTech".to_string());
 
     let http_client = HttpClient::new(true, true);
     let resp = http_client.get(&url, Some(extra)).await;
@@ -239,8 +241,8 @@ async fn test_plain_get_hickory_new_header_chk(){
     
     let test_content = "hello BachueTech";
     let url = format!("{}/test_get.php",SERVER);
-    let mut extra: HashMap<&str, &str> = HashMap::new();
-    extra.insert("Last-Name", "BachueTech");
+    let mut extra: HashMap<String, String> = HashMap::new();
+    extra.insert("Last-Name".to_string(), "BachueTech".to_string());
 
     let http_client = HttpClient::new(true, true);
     let resp = http_client.get(&url, Some(extra)).await;
@@ -327,8 +329,8 @@ async fn test_text_post_hickory_extra_headers(){
     let body = "{\"name\":\"Bachuetech\"}";
     let url = format!("{}/test_post.php",SERVER);
 
-    let mut extra: HashMap<&str, &str> = HashMap::new();
-    extra.insert("btai_session_id", "A_12dkk3dsd");
+    let mut extra: HashMap<String, String> = HashMap::new();
+    extra.insert("btai_session_id".to_string(), "A_12dkk3dsd".to_string());
 
     let http_client = HttpClient::new(true, true);
     let resp = http_client.post(&url, Some(extra), body, ContentType::TEXT).await;
@@ -501,4 +503,5 @@ fn test_change_headers_nc(){
 
     println!("Headers: {:?}",&http_client.get_default_headers());
     assert_eq!(http_client.get_default_headers().get(header_name).unwrap(),header_val); 
+}
 }

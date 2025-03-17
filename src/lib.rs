@@ -88,14 +88,15 @@ impl HttpClient {
     }
 
     ///Helper Method: Merge current/default headers with extra headers
-    fn get_extra_headers(&self, extra_headers: Option<HashMap<&str, &str>>) -> HeaderMap {
+    //fn get_extra_headers(&self, extra_headers: Option<HashMap<&str, &str>>) -> HeaderMap {
+    fn get_extra_headers(&self, extra_headers: Option<HashMap<String, String>>) -> HeaderMap {
         let mut local_headers = self.headers.clone();
         if let Some(new_headers) = extra_headers {
             // Add headers from HashMap into the existing HeaderMap
             for (key, value) in new_headers {
                 local_headers.insert(
                     HeaderName::from_str(&key).unwrap(),
-                    HeaderValue::from_str(value).unwrap(),
+                    HeaderValue::from_str(&value).unwrap(),
                 );
             }
         }
@@ -107,11 +108,8 @@ impl HttpClient {
 ///The get method is used to make a GET request to a specific URL
 ///It takes two parameters: url and extra_headers. If extra_headers is Some, it adds the headers to the existing headers in the client. 
 /// The method returns an HttpResponse instance containing the response from the GET request. 
-    pub async fn get(
-        &self,
-        url: &str,
-        extra_headers: Option<HashMap<&str, &str>>,
-    ) -> Result<HttpResponse, Error> {
+//    pub async fn get( &self, url: &str, extra_headers: Option<HashMap<&str, &str>>, ) -> Result<HttpResponse, Error> {
+    pub async fn get( &self, url: &str, extra_headers: Option<HashMap<String, String>>, ) -> Result<HttpResponse, Error> {
         let local_headers = self.get_extra_headers(extra_headers);
 
         match self.client.get(url).headers(local_headers).send().await {
@@ -126,7 +124,8 @@ impl HttpClient {
 ///The post method is used to make a POST request to a specific URL
 ///It takes four parameters: url, extra_headers, body_request, and content_type. 
 /// The method returns an HttpResponse instance containing the response from the POST request. 
-    pub async fn post( &self, url: &str, extra_headers: Option<HashMap<&str, &str>>, body_request: &str, content_type: ContentType, ) -> Result<HttpResponse, Error> {
+//    pub async fn post( &self, url: &str, extra_headers: Option<HashMap<&str, &str>>, body_request: &str, content_type: ContentType, ) -> Result<HttpResponse, Error> {
+    pub async fn post( &self, url: &str, extra_headers: Option<HashMap<String, String>>, body_request: &str, content_type: ContentType, ) -> Result<HttpResponse, Error> {
         //log_verbose!("post", "Getting {} with payload: {}", url, body_request);
         let mut local_headers = self.get_extra_headers(extra_headers); //self.headers.clone();
         match content_type {
@@ -166,7 +165,8 @@ impl HttpClient {
 /// The request method is used to make a request to a specific URL using a specific HTTP method: currently tested, get, post, put, delete, patch, delete
 /// It takes six parameters: request_method, url_with_ep_path (URL with endpoint: path, path parameters), extra_headers, body_params, query_params, and content_type. 
 /// The method returns an HttpResponse instance containing the response from the request.
-    pub async fn request( &self, request_method: &str, url_with_ep_path: &str, extra_headers: Option<HashMap<&str, &str>>, body_params: Option<HashMap<String, String>>, 
+//    pub async fn request( &self, request_method: &str, url_with_ep_path: &str, extra_headers: Option<HashMap<&str, &str>>, body_params: Option<HashMap<String, String>>, 
+    pub async fn request( &self, request_method: &str, url_with_ep_path: &str, extra_headers: Option<HashMap<String, String>>, body_params: Option<HashMap<String, String>>, 
                         query_params: Option<HashMap<String, String>>, content_type: ContentType, ) -> Result<HttpResponse, Box<dyn std::error::Error>> {
         let method = match request_method.to_uppercase().as_str() {
             "GET" => Method::GET,
@@ -277,7 +277,7 @@ impl HttpClient {
         }
     }
 
-    ///Helper Method convert_headers: A private method to convert HeaderMap to HashMap suitable for public use.
+    ///Helper Method convert_headers: A private method to convert HeaderMap to HashMap.
     fn convert_headers(headers: &HeaderMap) -> HashMap<String, String> {
         headers
             .iter()
