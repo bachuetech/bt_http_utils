@@ -6,7 +6,7 @@ use std::{
     collections::HashMap, io::{Error, ErrorKind}, str::FromStr, sync::Arc
 };
 
-use bt_logger::{get_error, log_debug, log_error, log_verbose};
+use bt_logger::{get_error, log_error, log_verbose};
 use reqwest::{
     cookie::Jar,
     header::{self, HeaderMap, HeaderName, HeaderValue},
@@ -188,7 +188,7 @@ impl HttpClient {
                     url = url.replace(&format!("{{{}}}", &path_param.0), &path_param.1);
                     qry_params.remove(&path_param.0); //Remove used path_param to use remaining params as query parameters
                 } else {
-                    log_debug!("request","Path parameter '{:?}' not provided. Parameter will be used as Query parameter", &path_param.0);
+                    log_verbose!("request","Path parameter '{:?}' not provided. Parameter will be used as Query parameter", &path_param.0);
                 }
             }
         }else{
@@ -232,7 +232,6 @@ impl HttpClient {
                                 log_verbose!("request","TEXT: Body {}",&body_data);
                                 request = request.body(body_data)
                             }
-
                     }       
             }
         }

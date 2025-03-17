@@ -40,6 +40,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * Fix issues with query parameters and request with content type TEXT
 * 0.5.3
     * Breaking change: Extra headers change to HashMap<String, String> from HashMap<&str, &str>. Update to Rust 2024 Edition.
+* 0.5.4
+    * Update dependencies. Clean code. Remove debugs
 
 ## License
 GPL-3.0-only

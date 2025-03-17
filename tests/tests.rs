@@ -52,6 +52,52 @@ async fn test_request_post_no_hickory(){
 
 
 #[tokio::test]
+async fn test_request_post_all(){
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    
+    let url = format!("{}/test/param.php/{{name}}/",SERVER);
+
+    let mut param: HashMap<String, String> = HashMap::new();
+    param.insert("name".to_string(), "omega".to_string());
+    param.insert("lastname".to_string(),"alpha".to_string());
+    let mut bodyp: HashMap<String, String> = HashMap::new();
+    bodyp.insert("age".to_string(), "25".to_string());
+    let mut headerp: HashMap<String, String> = HashMap::new();
+    headerp.insert("key".to_string(), "Key1".to_string());
+
+    let test_content = "Key: Key1, Name: omega, Last Name: No last name provided, Age: 25";
+
+    let http_client = HttpClient::new(false, true);
+
+    let resp = http_client.request("post",&url, Some(headerp), Some(bodyp), Some(param), ContentType::TEXT).await;
+    println!("Body: {:?}",&resp);
+    assert_eq!(resp.unwrap().body,test_content);
+}
+
+#[tokio::test]
+async fn test_request_get_all(){
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    
+    let url = format!("{}/test/param.php/{{name}}/",SERVER);
+
+    let mut param: HashMap<String, String> = HashMap::new();
+    param.insert("name".to_string(), "omega".to_string());
+    param.insert("lastname".to_string(),"alpha".to_string());
+    let mut bodyp: HashMap<String, String> = HashMap::new();
+    bodyp.insert("age".to_string(), "25".to_string());
+    let mut headerp: HashMap<String, String> = HashMap::new();
+    headerp.insert("key".to_string(), "Key1".to_string());
+
+    let test_content = "Key: Key1, Name: omega, Last Name: alpha, Age: No age provided";
+
+    let http_client = HttpClient::new(false, true);
+
+    let resp = http_client.request("get",&url, Some(headerp), Some(bodyp), Some(param), ContentType::JSON).await;
+    println!("Body: {:?}",&resp);
+    assert_eq!(resp.unwrap().body,test_content);
+}
+
+#[tokio::test]
 async fn test_request_post_text_no_hickory(){
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
     
