@@ -42,6 +42,12 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * Breaking change: Extra headers change to HashMap<String, String> from HashMap<&str, &str>. Update to Rust 2024 Edition.
 * 0.5.4
     * Update dependencies. Clean code. Remove debugs
+* 0.6.0
+    * Breaking Change. Fix https. Add Accept Risk for issues with digital certificates. New Parameter danger_accept_invalid. Possible values:
+    * const DANGER_ACCEPT_INVALID_HOSTNAMES: &str = "danger_accept_invalid_hostnames"
+    * const DANGER_ACCEPT_INVALID_CERTS: &str = "danger_accept_invalid_certs"
+    * Added support to external PEM (digital certificates)
+
 
 ## License
 GPL-3.0-only

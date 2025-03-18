@@ -1,6 +1,6 @@
 [package]
 name = "bt_http_utils"
-version = "0.5.4"
+version = "0.6.0"
 edition = "2024"
 authors = ["calvarez <calvarez@bachuetech.biz>"]
 description = "A simple HTTP wrapper to simplify POST and GET calls. Default headers with set and get headers. Support cookies. Request generic function for GET, POST, PUT, PATCH, and DELETE."
@@ -13,5 +13,8 @@ license = "GPL-3.0-only"
 
 [dependencies]
 bt_logger = "0.2.2"
-reqwest = {version ="0.12.14", features = ["json","hickory-dns","cookies"] }
+native-tls = "0.2.14"
+reqwest = {version ="0.12.15", features = ["json","hickory-dns","cookies", "native-tls"] }
 tokio = { version = "1.44.1", features = ["full"] }
+
+[dev-dependencies]

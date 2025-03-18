@@ -1,12 +1,16 @@
 /// Defines a HttpClient struct and its associated methods, which provides a simple and efficient way to make HTTP requests.
 /// It includes methods to set custom headers and retrieve default headers, as well as handling cookies if needed.
 /// It also defines an HttpResponse struct to represent the response from a HTTP request.
+mod ext_certs;
 
+pub const DANGER_ACCEPT_INVALID_HOSTNAMES: &str = "danger_accept_invalid_hostnames";
+pub const DANGER_ACCEPT_INVALID_CERTS: &str = "danger_accept_invalid_certs";
 use std::{
-    collections::HashMap, io::{Error, ErrorKind}, str::FromStr, sync::Arc
+    collections::HashMap, str::FromStr, sync::Arc
 };
 
 use bt_logger::{get_error, log_error, log_verbose};
+use ext_certs::get_local_certificates;
 use reqwest::{
     cookie::Jar,
     header::{self, HeaderMap, HeaderName, HeaderValue},
@@ -46,22 +50,44 @@ impl HttpClient {
     /// If use_cookies is true, it enables cookie support in the client. It creates a cookie store using Arc, sets the client to use cookies with a default custom user agent.
     /// If use_cookies is false, it builds a client without cookie support but still sets a default user agent.
     /// If use_hickory_dns is true, it enables Hickory DNS resolution in the client.
-    pub fn new(use_hickory_dns: bool, use_cookies: bool) -> Self {
-        let c = if use_cookies {
+    /// danger_accept_invalid: If true removes any validation to digital certificates. Useful with some self-signed certificate sites or when hostname doesn't match the certificate.
+    ///                         Possible values: const DANGER_ACCEPT_INVALID_HOSTNAMES: &str = "danger_accept_invalid_hostnames" OR
+    ///                                          const DANGER_ACCEPT_INVALID_CERTS: &str = "danger_accept_invalid_certs" OR
+    pub fn new(use_hickory_dns: bool, use_cookies: bool, danger_accept_invalid: Option<Vec<(&str,bool)>>) -> Self {
+        let tls_conn = get_local_certificates(danger_accept_invalid);
+        let mut cb = Client::builder();
+
+        if use_cookies {
             let cookie_store = Arc::new(Jar::default());
-            Client::builder()
-                .cookie_store(true)
-                .cookie_provider(cookie_store.clone())
-                .hickory_dns(use_hickory_dns)
+            if let Some (reqwest_tc) = tls_conn{
+                cb = cb
+                    .use_native_tls()
+                    .use_preconfigured_tls(reqwest_tc);
+            }
+                cb = cb.cookie_provider(cookie_store.clone())
+                /*.hickory_dns(use_hickory_dns)
                 .build()
-                .unwrap()
+                .unwrap()*/
         } else {
-            Client::builder()
-                .cookie_store(false)
-                .hickory_dns(use_hickory_dns)
+            if let Some (reqwest_tc) = tls_conn{
+                cb = cb
+                    .use_native_tls()
+                    .use_preconfigured_tls(reqwest_tc);
+            }
+            cb = cb.cookie_store(false)
+                /*.hickory_dns(use_hickory_dns)
                 .build()
-                .unwrap()
+                .unwrap()*/
         };
+
+        let c = cb
+        .connection_verbose(true)
+        //.danger_accept_invalid_certs(true)
+        //.danger_accept_invalid_hostnames(true)
+        .hickory_dns(use_hickory_dns)
+        .build()
+        .unwrap();
+
         let mut h = HeaderMap::new();
         h.insert(
             header::USER_AGENT,
@@ -109,13 +135,13 @@ impl HttpClient {
 ///It takes two parameters: url and extra_headers. If extra_headers is Some, it adds the headers to the existing headers in the client. 
 /// The method returns an HttpResponse instance containing the response from the GET request. 
 //    pub async fn get( &self, url: &str, extra_headers: Option<HashMap<&str, &str>>, ) -> Result<HttpResponse, Error> {
-    pub async fn get( &self, url: &str, extra_headers: Option<HashMap<String, String>>, ) -> Result<HttpResponse, Error> {
+    pub async fn get( &self, url: &str, extra_headers: Option<HashMap<String, String>>, ) -> Result<HttpResponse, Box<dyn std::error::Error>> {
         let local_headers = self.get_extra_headers(extra_headers);
 
         match self.client.get(url).headers(local_headers).send().await {
             Ok(resp) => return Ok(Self::extract_response(resp, url, "GET").await),
             Err(e) => {
-                return Err(Error::new( ErrorKind::Other, get_error!( "get", "Failed to get response from GET: {}. Error: {}", url, e.to_string() ), ))
+                return Err(get_error!( "get", "Failed to get response from GET: {}. Error: {}", url, e).into())
             }
         }
     }
@@ -125,7 +151,7 @@ impl HttpClient {
 ///It takes four parameters: url, extra_headers, body_request, and content_type. 
 /// The method returns an HttpResponse instance containing the response from the POST request. 
 //    pub async fn post( &self, url: &str, extra_headers: Option<HashMap<&str, &str>>, body_request: &str, content_type: ContentType, ) -> Result<HttpResponse, Error> {
-    pub async fn post( &self, url: &str, extra_headers: Option<HashMap<String, String>>, body_request: &str, content_type: ContentType, ) -> Result<HttpResponse, Error> {
+    pub async fn post( &self, url: &str, extra_headers: Option<HashMap<String, String>>, body_request: &str, content_type: ContentType, ) -> Result<HttpResponse,  Box<dyn std::error::Error>> {
         //log_verbose!("post", "Getting {} with payload: {}", url, body_request);
         let mut local_headers = self.get_extra_headers(extra_headers); //self.headers.clone();
         match content_type {
@@ -153,10 +179,7 @@ impl HttpClient {
         {
             Ok(resp) => return Ok(Self::extract_response(resp, url, "POST").await),
             Err(e) => {
-                return Err(Error::new(
-                    ErrorKind::Other,
-                    get_error!( "post", "Failed to get response from POST (TEXT): {}. Error: {}", url, e.to_string() ),
-                ))
+                return Err(get_error!( "post", "Failed to get response from POST ({:?}): {}. Error: {}", content_type, url, e ).into() )
             }
         }
     }
@@ -229,7 +252,6 @@ impl HttpClient {
                                 .map(|(k, v)| format!("{}={}", k, v))
                                 .collect::<Vec<String>>()
                                 .join("&");
-                                log_verbose!("request","TEXT: Body {}",&body_data);
                                 request = request.body(body_data)
                             }
                     }       
@@ -242,7 +264,7 @@ impl HttpClient {
         {
             Ok(resp) => return Ok(Self::extract_response(resp, &url, request_method.to_uppercase().as_str()).await),
             Err(e) => {
-                return Err(get_error!( "request", "Failed to get response from {} ({:?}): {}. Error: {}", &method, content_type, url, e.to_string())
+                return Err(get_error!( "request", "Failed to get response from {} ({:?}): {}. Error: {}", &method, content_type, url, e)
                                     .into())
             }
         }
