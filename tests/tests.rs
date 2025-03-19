@@ -120,7 +120,7 @@ async fn test_request_post_text_no_hickory_sec(){
     param.insert("name".to_string(), "John".to_string());
     param.insert("last_name".to_string(), "Smith".to_string());
     let test_content = "John Smith";
-    let dar = vec![(DANGER_ACCEPT_INVALID_HOSTNAMES, true)];
+    let dar = vec![(DANGER_ACCEPT_INVALID_HOSTNAMES.to_string() , true)];
 
     let http_client = HttpClient::new(false, true, Some(dar));
 
@@ -141,7 +141,7 @@ async fn test_request_post_text_no_hickory_sec_invalid(){
     param.insert("name".to_string(), "John".to_string());
     param.insert("last_name".to_string(), "Smith".to_string());
     let test_content = "John Smith";
-    let dar = vec![(DANGER_ACCEPT_INVALID_CERTS, true), ("invalid_key",true)];
+    let dar = vec![(DANGER_ACCEPT_INVALID_CERTS.to_string(), true), ("invalid_key".to_string(),true)];
 
     let http_client = HttpClient::new(false, true, Some(dar));
 

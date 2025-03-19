@@ -5,6 +5,7 @@ mod ext_certs;
 
 pub const DANGER_ACCEPT_INVALID_HOSTNAMES: &str = "danger_accept_invalid_hostnames";
 pub const DANGER_ACCEPT_INVALID_CERTS: &str = "danger_accept_invalid_certs";
+
 use std::{
     collections::HashMap, str::FromStr, sync::Arc
 };
@@ -53,7 +54,7 @@ impl HttpClient {
     /// danger_accept_invalid: If true removes any validation to digital certificates. Useful with some self-signed certificate sites or when hostname doesn't match the certificate.
     ///                         Possible values: const DANGER_ACCEPT_INVALID_HOSTNAMES: &str = "danger_accept_invalid_hostnames" OR
     ///                                          const DANGER_ACCEPT_INVALID_CERTS: &str = "danger_accept_invalid_certs" OR
-    pub fn new(use_hickory_dns: bool, use_cookies: bool, danger_accept_invalid: Option<Vec<(&str,bool)>>) -> Self {
+    pub fn new(use_hickory_dns: bool, use_cookies: bool, danger_accept_invalid: Option<Vec<(String,bool)>>) -> Self {
         let tls_conn = get_local_certificates(danger_accept_invalid);
         let mut cb = Client::builder();
 
@@ -137,7 +138,6 @@ impl HttpClient {
 //    pub async fn get( &self, url: &str, extra_headers: Option<HashMap<&str, &str>>, ) -> Result<HttpResponse, Error> {
     pub async fn get( &self, url: &str, extra_headers: Option<HashMap<String, String>>, ) -> Result<HttpResponse, Box<dyn std::error::Error>> {
         let local_headers = self.get_extra_headers(extra_headers);
-
         match self.client.get(url).headers(local_headers).send().await {
             Ok(resp) => return Ok(Self::extract_response(resp, url, "GET").await),
             Err(e) => {

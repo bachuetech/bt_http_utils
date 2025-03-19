@@ -47,6 +47,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * const DANGER_ACCEPT_INVALID_HOSTNAMES: &str = "danger_accept_invalid_hostnames"
     * const DANGER_ACCEPT_INVALID_CERTS: &str = "danger_accept_invalid_certs"
     * Added support to external PEM (digital certificates)
+* 0.6.1
+    * Breaking Change. Change in danger_accept_invalid data type to Option<Vec<(String,bool)>>
 
 
 ## License

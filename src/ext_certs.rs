@@ -6,7 +6,7 @@ use native_tls::{Certificate, TlsConnector};
 use crate::{DANGER_ACCEPT_INVALID_CERTS, DANGER_ACCEPT_INVALID_HOSTNAMES};
 
 const LOCAL_CERTIFICATES: &str = "certs";
-const LOCAL_CERTIFICATES_ENV_VAR_NAME: &str = "BTLOCALPEMCERTIFICATES";
+const LOCAL_CERTIFICATES_ENV_VAR_NAME: &str = "BT_LOCALPEMCERTIFICATES_DIR";
 
 
 
@@ -36,7 +36,7 @@ fn get_cert_files() -> Vec<String> {
     certs
 }
 
-pub(crate) fn get_local_certificates(danger_accept_invalid: Option<Vec<(&str,bool)>>) -> Option<TlsConnector> {
+pub(crate) fn get_local_certificates(danger_accept_invalid: Option<Vec<(String,bool)>>) -> Option<TlsConnector> {
     let certs_str = get_cert_files();
     if certs_str.len() <= 0{
         return None
