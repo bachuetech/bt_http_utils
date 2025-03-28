@@ -273,7 +273,7 @@ async fn test_request_get_extra_qry_param_no_hickory(){
     param.insert("id".to_string(), "2".to_string());
     param.insert("qry".to_string(), "Extra".to_string());
 
-    let url = format!("{}{}/uh/api.php/get/{{id}}","http",SERVER);
+    let url = format!("{}{}/uh/api.php/get/{{id}}/","http",SERVER);
 
     let http_client = HttpClient::new(false, true, None);
     let resp = http_client.request("get",&url, None, None, Some(param), ContentType::JSON).await;

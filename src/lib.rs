@@ -236,9 +236,10 @@ impl HttpClient {
             }
         }
 
-        if !url.ends_with('/') && qry_params.len() > 0 {
-            url = format!("{}{}",url,"/");
-        }
+        //Removed 03/28/25: Cause issues!
+        //if !url.ends_with('/') && qry_params.len() > 0 {
+        //    url = format!("{}{}",url,"/");
+        //}
 
         let mut request = self.client.request(method.clone(), &url).headers(local_headers);
         if method == Method::GET{
