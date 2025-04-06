@@ -10,6 +10,52 @@ const SERVER: &str = "://localhost";
 
 
 #[tokio::test]
+async fn test_streaming_post(){
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    let url = "http://localhost:11434/api/chat";
+    let http_client = HttpClient::new(false, true, None);
+    let param = "{\"model\": \"deepseek-r1-tool:latest\",\"messages\":[{\"role\": \"user\",\"content\": \"Write a hello world program in Rust\"}]}";
+    let resp = http_client.post_stream(url, None, param, ContentType::JSON).await;
+    let mut r = resp.unwrap();
+    let hr = r.read_stream().await.unwrap();
+    println!("Ans: {:?}",hr);
+    assert_eq!(hr.is_error(), false);
+    assert!(hr.body.len() > 0);
+}
+
+#[tokio::test]
+async fn test_post_stream_unknown_ep(){
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    let url = "http://localhost:11434/api/unknown";
+    let http_client = HttpClient::new(false, true, None);
+    let param = "{\"nothing\":\"nothing\"}";
+    let resp = http_client.post_stream(url, None, param, ContentType::JSON).await;
+    let mut r = resp.unwrap();
+    let hr = r.read_stream().await.unwrap();
+    println!("Ans: {:?}",&hr);
+    assert_eq!(hr.is_error(), true);
+    assert_eq!(hr.body,"ERROR: Failed to read stream response from http://localhost:11434/api/unknown. Status: Not Found.");
+}
+
+#[tokio::test]
+async fn test_post_stream_reach_end(){
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    let url = "http://localhost:11434/api/chat";
+    let http_client = HttpClient::new(false, true, None);
+    let param = "{\"model\": \"deepseek-r1-tool:latest\",\"messages\":[{\"role\": \"user\",\"content\": \"Write a hello world program in Rust\"}]}";
+    let resp = http_client.post_stream(url, None, param, ContentType::JSON).await;
+    //println!("RESP: {:?}",&resp);
+    let mut r = resp.unwrap();
+    //println!("R: {:?}",&r);
+    //let hr = r.read_stream().await.unwrap();
+    while let Some(hr) = r.read_stream().await{
+        //println!("HR: {:?}",&hr);
+        assert_eq!(hr.is_error(), false);
+        assert!(hr.body.len() > 0);
+    }
+}
+
+#[tokio::test]
 async fn test_request_err_notfound_no_hickory(){
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
     
@@ -103,7 +149,7 @@ async fn test_request_get_sec(){
     let url = "https://www.bachuetech.biz/";
     let http_client = HttpClient::new(false, true, None);
     let resp = http_client.request("get",&url, None, None, None, ContentType::TEXT).await;
-    println!("Body: {:?}",&resp);
+    //println!("Body: {:?}",&resp);
     assert!(resp.is_ok());
     assert!(resp.unwrap().body.len() > 0);
 }

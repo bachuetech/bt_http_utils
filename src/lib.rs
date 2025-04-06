@@ -2,6 +2,7 @@
 /// It includes methods to set custom headers and retrieve default headers, as well as handling cookies if needed.
 /// It also defines an HttpResponse struct to represent the response from a HTTP request.
 mod ext_certs;
+mod stream_response;
 
 pub const DANGER_ACCEPT_INVALID_HOSTNAMES: &str = "danger_accept_invalid_hostnames";
 pub const DANGER_ACCEPT_INVALID_CERTS: &str = "danger_accept_invalid_certs";
@@ -10,13 +11,12 @@ use std::{
     collections::HashMap, str::FromStr, sync::Arc
 };
 
-use bt_logger::{get_error, log_error, log_verbose};
+use bt_logger::{get_error, log_error, log_verbose, log_warning};
 use ext_certs::get_local_certificates;
 use reqwest::{
-    cookie::Jar,
-    header::{self, HeaderMap, HeaderName, HeaderValue},
-    Client, Method, Response, StatusCode,
+    cookie::Jar, header::{self, HeaderMap, HeaderName, HeaderValue}, Client, Method, Response, StatusCode
 };
+use stream_response::HttpStreamResponse;
 
 ///HttpClient:
 ///client: A Client instance from the reqwest crate for making HTTP requests.
@@ -35,7 +35,9 @@ pub struct HttpResponse {
     pub status_code: u16,
     pub header: HashMap<String, String>,
     pub body: String,
+    pub remote_address: String
 }
+
 
 ///ContentType: An enum to specify the content type of the request or response. Currently supports JSON and TEXT.
 #[derive(Debug)]
@@ -111,7 +113,7 @@ impl HttpClient {
 
     ///Method get_default_headers: Converts the internal HeaderMap to a HashMap for easy access and manipulation.
     pub fn get_default_headers(&self) -> HashMap<String, String> {
-        Self::convert_headers(&self.headers)
+        convert_headers(&self.headers)
     }
 
     ///Helper Method: Merge current/default headers with extra headers
@@ -151,7 +153,8 @@ impl HttpClient {
 ///It takes four parameters: url, extra_headers, body_request, and content_type. 
 /// The method returns an HttpResponse instance containing the response from the POST request. 
 //    pub async fn post( &self, url: &str, extra_headers: Option<HashMap<&str, &str>>, body_request: &str, content_type: ContentType, ) -> Result<HttpResponse, Error> {
-    pub async fn post( &self, url: &str, extra_headers: Option<HashMap<String, String>>, body_request: &str, content_type: ContentType, ) -> Result<HttpResponse,  Box<dyn std::error::Error>> {
+    pub async fn post( &self, url: &str, extra_headers: Option<HashMap<String, String>>, body_request: &str, content_type: ContentType, ) 
+                        -> Result<HttpResponse,  Box<dyn std::error::Error>> {
         //log_verbose!("post", "Getting {} with payload: {}", url, body_request);
         let mut local_headers = self.get_extra_headers(extra_headers); //self.headers.clone();
         match content_type {
@@ -180,6 +183,39 @@ impl HttpClient {
             Ok(resp) => return Ok(Self::extract_response(resp, url, "POST").await),
             Err(e) => {
                 return Err(get_error!( "post", "Failed to get response from POST ({:?}): {}. Error: {}", content_type, url, e ).into() )
+            }
+        }
+    }
+
+    pub async fn post_stream( &self, url: &str, extra_headers: Option<HashMap<String, String>>, body_request: &str, content_type: ContentType, ) -> Result<HttpStreamResponse,  Box<dyn std::error::Error>> {
+        //log_verbose!("post", "Getting {} with payload: {}", url, body_request);
+        let mut local_headers = self.get_extra_headers(extra_headers); //self.headers.clone();
+        match content_type {
+            ContentType::JSON => {
+                local_headers.insert(
+                    header::CONTENT_TYPE,
+                    HeaderValue::from_str("application/json").unwrap(),
+                );
+            }
+            ContentType::TEXT => {
+                local_headers.insert(
+                    header::CONTENT_TYPE,
+                    HeaderValue::from_str("application/text").unwrap(),
+                );
+            }
+        }
+
+        match self
+            .client
+            .post(url)
+            .headers(local_headers)
+            .body(body_request.to_string())
+            .send()
+            .await
+        {
+            Ok(resp) => return Ok(HttpStreamResponse::new(resp)),
+            Err(e) => {
+                return Err(get_error!( "post_stream", "Failed to get stream response from POST ({:?}): {}. Error: {}", content_type, url, e ).into() )
             }
         }
     }
@@ -274,30 +310,79 @@ impl HttpClient {
  ///Helper Method: extract_response
  /// The extract_response method is used to extract the response from a Response instance
  /// It takes three parameters: resp, url, and method. The method returns an HttpResponse instance containing the response from the request.
-    async fn extract_response(resp: Response, url: &str, method: &str) -> HttpResponse {
+    async fn extract_response(mut resp: Response, url: &str, method: &str) -> HttpResponse {
+        let ra = match resp.remote_addr() {
+            Some(ip) => ip.ip().to_string(),
+            None => {
+                log_warning!("extract_response", "Remote Address not found. Using default 0.0.0.0");
+                "0.0.0.0".to_owned()
+            },
+        };
+
         if resp.status().is_client_error() || resp.status().is_server_error() {
             log_error!( "extract_response", "ERROR: Failed to get response from {}: {} Status Code: {}", method, url, resp.status() );
             return HttpResponse {
                 status_code: resp.status().as_u16(),
-                header: Self::convert_headers(resp.headers()),
+                header: convert_headers(resp.headers()),
                 body: format!( "ERROR: Failed to get response from {}:{} -Error: {}", method, url, resp.status().canonical_reason().unwrap_or("UNKNOWN ERROR!") ),
+                remote_address: ra
             };
         } else {
+            let mut full_body = String::new();
+            let mut error_count = 0;
+            let rstatus = resp.status().as_u16();
+            let rheader = convert_headers(resp.headers());
+
+            if resp.status().is_success() {
+                let mut read_resp: bool = true;
+                // Process the response body as it's being streamed
+                while read_resp {
+                    match resp.chunk().await { 
+                        Ok(r) => {
+                            match r{
+                                Some(chunk) => full_body.push_str(&String::from_utf8_lossy(&chunk)),
+                                None => read_resp = false,
+                            }
+                        },
+                        Err(e) => {
+                            if error_count > 3{
+                                log_error!("extract_response","Too many errors (>3 times) reading answer body. Stop Executing and return what was collected. Error {}",e);
+                                return HttpResponse {
+                                    status_code: resp.status().as_u16(),
+                                    header: convert_headers(resp.headers()),
+                                    body: resp.text().await.expect(full_body.as_str() ),
+                                        //get_error!("extract_response","ERROR: Failed to get payload from {}:{}",method,url)
+                                        //    .as_str(),
+                                        //),
+                                    remote_address: ra,
+                                };
+                            }
+                            error_count = error_count + 1;
+                            log_error!("extract_response","Error reading answer body (error count={}). Error {}",error_count,e);                
+                        },
+                    }
+                }
+            }else{
+                full_body = resp.text().await.expect(
+                        get_error!("extract_response","ERROR: Failed to get payload when status = {} from {}:{}",rstatus, method,url)
+                        .as_str(),
+                    );
+            }
             return HttpResponse {
-                status_code: resp.status().as_u16(),
-                header: Self::convert_headers(resp.headers()),
-                body: resp.text().await.expect(
-                    get_error!(
-                        "extract_response",
-                        "ERROR: Failed to get payload from {}:{}",
-                        method,
-                        url
-                    )
-                    .as_str(),
-                ),
+                status_code: rstatus, // resp.status().as_u16(),
+                header: rheader, //Self::convert_headers(resp.headers()),
+                //body: resp.text().await.expect(
+                //    get_error!("extract_response","ERROR: Failed to get payload from {}:{}",method,url)
+                //    .as_str(),
+                //),
+                body: full_body,
+                remote_address: ra,
             };
         }
     }
+
+
+}
 
     ///Helper Method convert_headers: A private method to convert HeaderMap to HashMap.
     fn convert_headers(headers: &HeaderMap) -> HashMap<String, String> {
@@ -306,8 +391,7 @@ impl HttpClient {
             .map(|(k, v)| (k.to_string(), v.to_str().unwrap_or_default().to_string()))
             .collect()
     }
-}
-
+    
 impl HttpResponse {
 ///The is_error method is used to check if the response is an error:    
     pub fn is_error(&self) -> bool {

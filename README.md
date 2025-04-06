@@ -51,6 +51,9 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * Breaking Change. Change in danger_accept_invalid data type to Option<Vec<(String,bool)>>
 * 0.6.2
     * Remove adding / at end of url in Qry Params are added.
+* 0.7.0
+    * Add Streaming capability
+    * Return Remote Address
 
 
 ## License
