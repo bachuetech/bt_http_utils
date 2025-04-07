@@ -54,6 +54,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
 * 0.7.0
     * Add Streaming capability
     * Return Remote Address
+* 0.7.1
+    * Make HttpStreamResponse public
 
 
 ## License

@@ -8,8 +8,6 @@ use crate::{DANGER_ACCEPT_INVALID_CERTS, DANGER_ACCEPT_INVALID_HOSTNAMES};
 const LOCAL_CERTIFICATES: &str = "certs";
 const LOCAL_CERTIFICATES_ENV_VAR_NAME: &str = "BT_LOCALPEMCERTIFICATES_DIR";
 
-
-
 /// Scans the "certs" directory and returns all `.pem` file paths.
 fn get_cert_files() -> Vec<String> {
     let mut certs = Vec::new();
@@ -18,7 +16,6 @@ fn get_cert_files() -> Vec<String> {
         Ok(d) => cert_dir = d,
         Err(_) => cert_dir = LOCAL_CERTIFICATES.to_owned(),
     }
-
 
     if let Ok(entries) = fs::read_dir(&cert_dir) {
         for entry in entries.flatten() {

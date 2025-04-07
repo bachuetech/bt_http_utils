@@ -2,7 +2,7 @@
 /// It includes methods to set custom headers and retrieve default headers, as well as handling cookies if needed.
 /// It also defines an HttpResponse struct to represent the response from a HTTP request.
 mod ext_certs;
-mod stream_response;
+pub mod stream_response;
 
 pub const DANGER_ACCEPT_INVALID_HOSTNAMES: &str = "danger_accept_invalid_hostnames";
 pub const DANGER_ACCEPT_INVALID_CERTS: &str = "danger_accept_invalid_certs";

@@ -5,6 +5,28 @@ use reqwest::Response;
 
 use crate::{convert_headers, HttpResponse};
 
+const MAX_NUMBER_ERROR: i8 = 5;
+
+///The HttpStreamResponse struct and its associated methods are designed to handle HTTP responses, including logging errors, 
+/// checking response statuses, and reading the response stream asynchronously.
+/// 
+///Fields:
+/// - ini_status_str: Initial status string of the HTTP response.
+/// - ini_header: Initial headers of the HTTP response.
+/// - url: URL from which the response was received.
+/// - remote_address: Remote address of the server that sent the response.
+/// - error_count: Counter for errors encountered during stream reading.
+/// - resp: The actual reqwest::Response object.
+/// 
+/// Methods:
+/// - new(http_resp: Response) -> Self: Initializes a new instance of HttpStreamResponse from a reqwest::Response.
+/// - is_error() -> bool: Checks if the HTTP status code indicates an error.
+/// - get_status() -> u16: Returns the HTTP status code as an unsigned 16-bit integer.
+/// - get_ini_header() -> HashMap: Returns a copy of the initial headers.
+/// - read_stream(&mut self) -> Option: Asynchronously reads and processes the stream from the HTTP response. 
+///     It handles errors by logging them and optionally stopping execution if too many errors occur.
+///     The read_stream method uses asynchronous I/O to read chunks from the response stream.
+///     It processes each chunk individually, converting it to a string if possible.
 #[derive(Debug)]
 pub struct HttpStreamResponse {
     //ini_status_code: u16,
@@ -59,36 +81,37 @@ impl HttpStreamResponse {
                 remote_address: self.remote_address.clone(),
             });
         } else {
-                    match self.resp.chunk().await { 
-                        Ok(r) => {
-                            match r{
-                                Some(chunk) => {
-                                    return Some(HttpResponse {
-                                        status_code: self.get_status(),
-                                        header: convert_headers(self.resp.headers()),
-                                        body: (&String::from_utf8_lossy(&chunk)).to_string(),
-                                        remote_address: self.remote_address.clone(),
-                                    })
-                                },
-                                None => return None,
-                            }
-                        },
-                        Err(e) => {
-                            self.error_count += 1;
-                            if  self.error_count > 3{
-                                log_error!("read_stream","Error reading streaming (>3 errors) from {}. Stop Executing return None. Error {}",self.url, e);
-                                return None
-                            }
+                let chunk = self.resp.chunk().await;
+                match chunk { 
+                    Ok(r) => {
+                        match r{
+                            Some(chunk) => {
+                                return Some(HttpResponse {
+                                    status_code: self.get_status(),
+                                    header: convert_headers(self.resp.headers()),
+                                    body: (&String::from_utf8_lossy(&chunk)).to_string(),
+                                    remote_address: self.remote_address.clone(),
+                                })
+                            },
+                            None => return None, //Stop
+                        }
+                    },
+                    Err(e) => {
+                        self.error_count += 1;
+                        if self.error_count > MAX_NUMBER_ERROR{
+                           log_error!("read_stream","Error reading streaming (>{} errors) from {}. Stop Executing returning None. Error {}",MAX_NUMBER_ERROR, self.url, e);
+                           return None //Stop
+                        }
 
-                            log_error!("read_stream","Error reading streaming from {}. Return Empty body. Error {}",self.url, e);
-                            return Some(HttpResponse {
-                                status_code: self.get_status(),
-                                header: convert_headers(self.resp.headers()),
-                                body: "".to_owned(),
-                                remote_address: self.remote_address.clone(),
-                            });
-                        },
-                    }
+                        log_error!("read_stream","Error reading streaming from {}. Return Empty body but continue. Error {}", &self.url, e);
+                        return Some(HttpResponse {
+                            status_code: self.get_status(),
+                            header: convert_headers(self.resp.headers()),
+                            body: "".to_owned(),
+                            remote_address: self.remote_address.clone(),
+                        });
+                    },
+                }
             }
         }        
 }
