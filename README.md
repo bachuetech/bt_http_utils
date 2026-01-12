@@ -56,7 +56,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * Return Remote Address
 * 0.7.1
     * Make HttpStreamResponse public
-
+* 0.7.2
+    * Update dependencies. Internal changes due to the updates.
 
 ## License
 GPL-3.0-only

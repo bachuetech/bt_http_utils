@@ -11,7 +11,7 @@ const SERVER: &str = "://localhost";
 
 #[tokio::test]
 async fn test_streaming_post(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     let url = "http://localhost:11434/api/chat";
     let http_client = HttpClient::new(false, true, None);
     let param = "{\"model\": \"deepseek-r1-tool:latest\",\"messages\":[{\"role\": \"user\",\"content\": \"Write a hello world program in Rust\"}]}";
@@ -25,7 +25,7 @@ async fn test_streaming_post(){
 
 #[tokio::test]
 async fn test_post_stream_unknown_ep(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     let url = "http://localhost:11434/api/unknown";
     let http_client = HttpClient::new(false, true, None);
     let param = "{\"nothing\":\"nothing\"}";
@@ -39,7 +39,7 @@ async fn test_post_stream_unknown_ep(){
 
 #[tokio::test]
 async fn test_post_stream_reach_end(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     let url = "http://localhost:11434/api/chat";
     let http_client = HttpClient::new(false, true, None);
     let param = "{\"model\": \"deepseek-r1-tool:latest\",\"messages\":[{\"role\": \"user\",\"content\": \"Write a hello world program in Rust\"}]}";
@@ -57,7 +57,7 @@ async fn test_post_stream_reach_end(){
 
 #[tokio::test]
 async fn test_request_err_notfound_no_hickory(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let url = format!("{}{}/uh/api.php","http",SERVER);
 
@@ -69,7 +69,7 @@ async fn test_request_err_notfound_no_hickory(){
 
 #[tokio::test]
 async fn test_request_err_missparam_no_hickory(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let url = format!("{}{}/uh/api.php/posts/","http",SERVER);
 
@@ -81,7 +81,7 @@ async fn test_request_err_missparam_no_hickory(){
 
 #[tokio::test]
 async fn test_request_post_no_hickory(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let url = format!("{}{}/uh/api.php/users/","http",SERVER);
 
@@ -99,7 +99,7 @@ async fn test_request_post_no_hickory(){
 
 #[tokio::test]
 async fn test_request_post_all(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let url = format!("{}{}/test/param.php/{{name}}/","http",SERVER);
 
@@ -122,7 +122,7 @@ async fn test_request_post_all(){
 
 #[tokio::test]
 async fn test_request_get_all(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let url = format!("{}{}/test/param.php/{{name}}/","http",SERVER);
 
@@ -145,7 +145,7 @@ async fn test_request_get_all(){
 
 #[tokio::test]
 async fn test_request_get_sec(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     let url = "https://www.bachuetech.biz/";
     let http_client = HttpClient::new(false, true, None);
     let resp = http_client.request("get",&url, None, None, None, ContentType::TEXT).await;
@@ -156,7 +156,7 @@ async fn test_request_get_sec(){
 
 #[tokio::test]
 async fn test_request_post_text_no_hickory_sec(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     //env_logger::init();
     //tracing_subscriber::fmt::init();
 
@@ -177,7 +177,7 @@ async fn test_request_post_text_no_hickory_sec(){
 
 #[tokio::test]
 async fn test_request_post_text_no_hickory_sec_invalid(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     //env_logger::init();
     //tracing_subscriber::fmt::init();
 
@@ -198,7 +198,7 @@ async fn test_request_post_text_no_hickory_sec_invalid(){
 
 #[tokio::test]
 async fn test_request_post_text_no_hickory(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let url = format!("{}{}/uh/apitxt1.php/users/","http",SERVER);
 
@@ -216,7 +216,7 @@ async fn test_request_post_text_no_hickory(){
 
 #[tokio::test]
 async fn test_request_delete_direct_param_no_hickory(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "{\"status\":\"success\",\"message\":\"User deleted\"}";
     let url = format!("{}{}/uh/api.php/delete/1","http",SERVER);
@@ -229,7 +229,7 @@ async fn test_request_delete_direct_param_no_hickory(){
 
 #[tokio::test]
 async fn test_request_delete_qry_param_no_hickory(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "{\"status\":\"success\",\"message\":\"User deleted\"}";
     let mut param: HashMap<String, String> = HashMap::new();
@@ -244,7 +244,7 @@ async fn test_request_delete_qry_param_no_hickory(){
 
 #[tokio::test]
 async fn test_request_get_noparam_no_hickory(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "[{\"id\":1,\"userId\":1},{\"id\":2,\"userId\":2}]";
     let url = format!("{}{}/uh/api.php/get","http",SERVER);
@@ -257,7 +257,7 @@ async fn test_request_get_noparam_no_hickory(){
 
 #[tokio::test]
 async fn test_request_put_with_direct_param_no_hickory(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "[{\"id\":3,\"userId\":2,\"title\":\"Write Documentation\",\"completed\":false}]";
     let url = format!("{}{}/uh/api.php/todos/2","http",SERVER);
@@ -270,7 +270,7 @@ async fn test_request_put_with_direct_param_no_hickory(){
 
 #[tokio::test]
 async fn test_request_patch_with_direct_param_no_hickory(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "[{\"id\":3,\"userId\":2,\"title\":\"Write Documentation\",\"completed\":false}]";
     let url = format!("{}{}/uh/api.php/todos/2","http",SERVER);
@@ -283,7 +283,7 @@ async fn test_request_patch_with_direct_param_no_hickory(){
 
 #[tokio::test]
 async fn test_request_get_with_direct_param_no_hickory(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "{\"id\":2,\"userId\":2}";
     let url = format!("{}{}/uh/api.php/get/2","http",SERVER);
@@ -296,7 +296,7 @@ async fn test_request_get_with_direct_param_no_hickory(){
 
 #[tokio::test]
 async fn test_request_get_qry_param_no_hickory(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "{\"id\":2,\"userId\":2}";
     let mut param: HashMap<String, String> = HashMap::new();
@@ -312,7 +312,7 @@ async fn test_request_get_qry_param_no_hickory(){
 
 #[tokio::test]
 async fn test_request_get_extra_qry_param_no_hickory(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "{\"id\":2,\"userId\":2}";
     let mut param: HashMap<String, String> = HashMap::new();
@@ -331,7 +331,7 @@ async fn test_request_get_extra_qry_param_no_hickory(){
 async fn test_plain_get_no_hickory(){
     //const SERVER: &str = "http://localhost";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "Hello World! to Bachuetech!";
     let url = format!("{}{}/test_get.php?name=Bachuetech","http",SERVER);
@@ -347,7 +347,7 @@ async fn test_plain_get_no_hickory(){
 async fn test_plain_get_no_hickory_new_header(){
     //const SERVER: &str = "http://localhost";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "Hello World!";
     let url = format!("{}{}/test_get.html","http",SERVER);
@@ -365,7 +365,7 @@ async fn test_plain_get_no_hickory_new_header(){
 async fn test_plain_get_hickory_new_header(){
     //const SERVER: &str = "http://localhost";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "Hello World! BachueTech!";
     let url = format!("{}{}/test_get.php","http",SERVER);
@@ -382,7 +382,7 @@ async fn test_plain_get_hickory_new_header(){
 async fn test_plain_get_hickory_new_header_chk(){
     //const SERVER: &str = "http://localhost";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "hello BachueTech";
     let url = format!("{}{}/test_get.php","http",SERVER);
@@ -399,7 +399,7 @@ async fn test_plain_get_hickory_new_header_chk(){
 async fn test_plain_get_hickory(){
     //const SERVER: &str = "http://localhost";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "Hello World!";
     let url = format!("{}{}/test_get.html","http",SERVER);
@@ -412,7 +412,7 @@ async fn test_plain_get_hickory(){
 
 #[tokio::test]
 async fn test_plain_get_dns_fail(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let http_client = HttpClient::new(false, true, None);
     let resp = http_client.get("http://http://www.google.com/page/", None).await;
@@ -422,7 +422,7 @@ async fn test_plain_get_dns_fail(){
 
 #[tokio::test]
 async fn test_plain_get_fail(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let http_client = HttpClient::new(false, true, None);
     let resp = http_client.get("http:/www.google.com/page/", None).await;
@@ -434,7 +434,7 @@ async fn test_plain_get_fail(){
 async fn test_json_post_hickory(){
     //const SERVER: &str = "http://localhost";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "Hello Bachuetech";
     let body = "{\"name\":\"Bachuetech\"}";
@@ -450,7 +450,7 @@ async fn test_json_post_hickory(){
 async fn test_text_post_hickory(){
     //const SERVER: &str = "http://localhost";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "Hello Bachuetech";
     let body = "{\"name\":\"Bachuetech\"}";
@@ -468,7 +468,7 @@ async fn test_text_post_hickory(){
 async fn test_text_post_hickory_extra_headers(){
     //const SERVER: &str = "http://localhost";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "Hello Bachuetech";
     let body = "{\"name\":\"Bachuetech\"}";
@@ -489,7 +489,7 @@ async fn test_text_post_hickory_extra_headers(){
 async fn test_json_post_hickory_fail(){
     //const SERVER: &str = "http://localhost";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
 
     let url = format!("{}{}/test_post_fake.php","http",SERVER);
 
@@ -504,7 +504,7 @@ fn test_set_headers(){
     let header_val =  "HEADER_VALUE";
     let header_name = "bt_header";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     let mut http_client = HttpClient::new(false, true, None);
     http_client.set_header(&header_name, &header_val);
 
@@ -517,7 +517,7 @@ fn test_change_headers(){
     let header_val =  "HEADER_VALUE";
     let header_name = "user-agent";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     let mut http_client = HttpClient::new(false, true, None);
     http_client.set_header(&header_name, &header_val);
 
@@ -530,7 +530,7 @@ fn test_change_headers(){
 async fn test_plain_get_no_hickory_nc(){
     //const SERVER: &str = "http://localhost";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "Hello World!";
     let url = format!("{}{}/test_get.html","http",SERVER);
@@ -545,7 +545,7 @@ async fn test_plain_get_no_hickory_nc(){
 async fn test_plain_get_hickory_nc(){
     //const SERVER: &str = "http://localhost";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "Hello World!";
     let url = format!("{}{}/test_get.html","http",SERVER);
@@ -558,7 +558,7 @@ async fn test_plain_get_hickory_nc(){
 
 #[tokio::test]
 async fn test_plain_get_dns_fail_nc(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let http_client = HttpClient::new(false, false, None);
     let resp = http_client.get("http://http://www.google.com/page/", None).await;
@@ -568,7 +568,7 @@ async fn test_plain_get_dns_fail_nc(){
 
 #[tokio::test]
 async fn test_plain_get_fail_nc(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let http_client = HttpClient::new(false, false, None);
     let resp = http_client.get("http:/www.google.com/page/", None).await;
@@ -580,7 +580,7 @@ async fn test_plain_get_fail_nc(){
 async fn test_json_post_hickory_nc(){
     //const SERVER: &str = "http://localhost";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "Hello Bachuetech";
     let body = "{\"name\":\"Bachuetech\"}";
@@ -596,7 +596,7 @@ async fn test_json_post_hickory_nc(){
 async fn test_text_post_hickory_nc(){
     //const SERVER: &str = "http://localhost";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     
     let test_content = "Hello Bachuetech";
     let body = "{\"name\":\"Bachuetech\"}";
@@ -614,7 +614,7 @@ async fn test_text_post_hickory_nc(){
 async fn test_json_post_hickory_fail_nc(){
     //const SERVER: &str = "http://localhost";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
 
     let url = format!("{}{}/test_post_fake.php","http",SERVER);
 
@@ -629,7 +629,7 @@ fn test_set_headers_nc(){
     let header_val =  "HEADER_VALUE";
     let header_name = "bt_header";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     let mut http_client = HttpClient::new(false, false, None);
     http_client.set_header(&header_name, &header_val);
 
@@ -642,7 +642,7 @@ fn test_change_headers_nc(){
     let header_val =  "HEADER_VALUE";
     let header_name = "user-agent";
 
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR );
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     let mut http_client = HttpClient::new(false, false, None);
     http_client.set_header(&header_name, &header_val);
 

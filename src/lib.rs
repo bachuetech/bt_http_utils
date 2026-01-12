@@ -14,7 +14,7 @@ use std::{
 use bt_logger::{get_error, log_error, log_verbose, log_warning};
 use ext_certs::get_local_certificates;
 use reqwest::{
-    cookie::Jar, header::{self, HeaderMap, HeaderName, HeaderValue}, Client, Method, Response, StatusCode
+    Client, Method, Response, StatusCode, Url, cookie::Jar, header::{self, HeaderMap, HeaderName, HeaderValue}
 };
 use stream_response::HttpStreamResponse;
 
@@ -277,23 +277,31 @@ impl HttpClient {
         //    url = format!("{}{}",url,"/");
         //}
 
-        let mut request = self.client.request(method.clone(), &url).headers(local_headers);
+        let request = 
         if method == Method::GET{
-            request = request.query(&qry_params); // Use remaining params as query parameters if any
+            let url_with_params = if qry_params.len() > 0 {
+                                Url::parse_with_params(&url, &qry_params).unwrap() //FixMe: Control this unwrap. manage error
+                            }else{
+                                Url::parse(&url).unwrap() //FixMe: Control this unwrap. manage error
+                            };
+            self.client.get(url_with_params).headers(local_headers)                            
+            //request = request.query(&qry_params); // Use remaining params as query parameters if any
         }else{
+            let mut req = self.client.request(method.clone(), &url).headers(local_headers);
             if let Some(b_params) = body_params{
                     match content_type {
-                        ContentType::JSON => request = request.json(&b_params),
+                        ContentType::JSON => req = req.json(&b_params),
                         _ => {let body_data = b_params
                                 .iter()
                                 .map(|(k, v)| format!("{}={}", k, v))
                                 .collect::<Vec<String>>()
                                 .join("&");
-                                request = request.body(body_data)
+                                req = req.body(body_data)
                             }
                     }       
             }
-        }
+            req
+        };
 
         match request
             .send()
