@@ -5,7 +5,7 @@ mod ext_certs;
 pub mod stream_response;
 
 pub const DANGER_ACCEPT_INVALID_HOSTNAMES: &str = "danger_accept_invalid_hostnames";
-pub const DANGER_ACCEPT_INVALID_CERTS: &str = "danger_accept_invalid_certs";
+pub const DANGER_ACCEPT_INVALID_CERTS: &str     = "danger_accept_invalid_certs";
 
 use std::{
     collections::HashMap, str::FromStr, sync::Arc
