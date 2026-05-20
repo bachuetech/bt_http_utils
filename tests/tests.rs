@@ -3,7 +3,7 @@ mod http_utils_tests {
 use std::collections::HashMap;
 
 use bt_http_utils::{self, ContentType, HttpClient, DANGER_ACCEPT_INVALID_CERTS, DANGER_ACCEPT_INVALID_HOSTNAMES};
-use bt_logger::{build_logger, LogLevel, LogTarget};
+use bt_logger::{LogLevel, LogTarget, build_logger, log_verbose};
 
 #[cfg(test)]
 const SERVER: &str = "://localhost";
@@ -155,8 +155,8 @@ async fn test_request_get_sec(){
 }
 
 #[tokio::test]
-async fn test_request_post_text_no_hickory_sec(){
-    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
+async fn test_request_post_text_no_hickory_sec_only(){
+    build_logger("BACHUETECH", "BT.HTTP.UTILS_TEST", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     //env_logger::init();
     //tracing_subscriber::fmt::init();
 
@@ -166,12 +166,12 @@ async fn test_request_post_text_no_hickory_sec(){
     param.insert("name".to_string(), "John".to_string());
     param.insert("last_name".to_string(), "Smith".to_string());
     let test_content = "John Smith";
-    let dar = vec![(DANGER_ACCEPT_INVALID_HOSTNAMES.to_string() , true)];
+    let dar = vec![(DANGER_ACCEPT_INVALID_HOSTNAMES.to_string() , true),(DANGER_ACCEPT_INVALID_CERTS.to_owned(), true)];
 
     let http_client = HttpClient::new(false, true, Some(dar));
 
     let resp = http_client.request("post",&url, None, Some(param), None, ContentType::TEXT).await;
-    println!("Body: {:?}",&resp);
+    log_verbose!("test_request_post_text_no_hickory_sec_only","Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
 

@@ -11,16 +11,16 @@ const LOCAL_CERTIFICATES_ENV_VAR_NAME: &str = "BT_LOCALPEMCERTIFICATES_DIR";
 /// Scans the "certs" directory and returns all `.pem` file paths.
 fn get_cert_files() -> Vec<String> {
     let mut certs = Vec::new();
-    let cert_dir: String;
+    let cert_dir: String = 
     match env::var(LOCAL_CERTIFICATES_ENV_VAR_NAME){
-        Ok(d) => cert_dir = d,
-        Err(_) => cert_dir = LOCAL_CERTIFICATES.to_owned(),
-    }
+        Ok(d) => d,
+        Err(_) => LOCAL_CERTIFICATES.to_owned(),
+    };
 
     if let Ok(entries) = fs::read_dir(&cert_dir) {
         for entry in entries.flatten() {
             let path = entry.path();
-            if path.is_file() && path.extension().map_or(false, |ext| ext == "pem") {
+            if path.is_file() && path.extension().is_some_and(|ext| ext == "pem") { //map_or(false, |ext| ext == "pem") {
                 if let Some(path_str) = path.to_str() {
                     certs.push(path_str.to_string());
                 }
@@ -35,7 +35,7 @@ fn get_cert_files() -> Vec<String> {
 
 pub(crate) fn get_local_certificates(danger_accept_invalid: Option<Vec<(String,bool)>>) -> Option<TlsConnector> {
     let certs_str = get_cert_files();
-    if certs_str.len() <= 0{
+    if certs_str.is_empty() {
         return None
     }
 
@@ -58,8 +58,7 @@ pub(crate) fn get_local_certificates(danger_accept_invalid: Option<Vec<(String,b
         }
     }
 
-    if let Some(daiv) = danger_accept_invalid{
-        if daiv.len() > 0 {
+    if let Some(daiv) = danger_accept_invalid && !daiv.is_empty() {
             for item in daiv {
                 if item.0 ==  DANGER_ACCEPT_INVALID_HOSTNAMES {
                     tls_builder.danger_accept_invalid_hostnames(item.1);
@@ -71,11 +70,10 @@ pub(crate) fn get_local_certificates(danger_accept_invalid: Option<Vec<(String,b
                     }
                 }
             }
-        }
     }
 
     match tls_builder.build(){
-        Ok(conn) => return Some(conn),
+        Ok(conn) => Some(conn),
         Err(e) => {
             log_error!("get_local_certificate","Could not built TLS Connector. Error {}",&e);
             None

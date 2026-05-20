@@ -24,9 +24,9 @@ const MAX_NUMBER_ERROR: i8 = 5;
 /// - get_status() -> u16: Returns the HTTP status code as an unsigned 16-bit integer.
 /// - get_ini_header() -> HashMap: Returns a copy of the initial headers.
 /// - read_stream(&mut self) -> Option: Asynchronously reads and processes the stream from the HTTP response. 
-///     It handles errors by logging them and optionally stopping execution if too many errors occur.
-///     The read_stream method uses asynchronous I/O to read chunks from the response stream.
-///     It processes each chunk individually, converting it to a string if possible.
+///     * It handles errors by logging them and optionally stopping execution if too many errors occur.
+///     * The read_stream method uses asynchronous I/O to read chunks from the response stream.
+///     * It processes each chunk individually, converting it to a string if possible.
 #[derive(Debug)]
 pub struct HttpStreamResponse {
     //ini_status_code: u16,
@@ -74,26 +74,26 @@ impl HttpStreamResponse {
     pub async fn read_stream(&mut self) -> Option<HttpResponse> {
         if self.is_error() { //if response.status().is_client_error() || response.status().is_server_error() {
             log_error!( "read_stream", "ERROR: Failed to read stream response from {}. Status Code: {} ({})", self.url,self.get_status(),self.ini_status_str );
-            return Some(HttpResponse {
+            Some(HttpResponse {
                 status_code: self.get_status(),//response.status().as_u16(),
                 header: self.get_ini_header(), //convert_headers(response.headers()),
                 body: format!( "ERROR: Failed to read stream response from {}. Status: {}.", self.url, self.ini_status_str ),
                 remote_address: self.remote_address.clone(),
-            });
+            })
         } else {
                 let chunk = self.resp.chunk().await;
                 match chunk { 
                     Ok(r) => {
                         match r{
                             Some(chunk) => {
-                                return Some(HttpResponse {
+                                Some(HttpResponse {
                                     status_code: self.get_status(),
                                     header: convert_headers(self.resp.headers()),
-                                    body: (&String::from_utf8_lossy(&chunk)).to_string(),
+                                    body: (String::from_utf8_lossy(&chunk)).to_string(),
                                     remote_address: self.remote_address.clone(),
                                 })
                             },
-                            None => return None, //Stop
+                            None => None, //Stop
                         }
                     },
                     Err(e) => {
@@ -104,12 +104,12 @@ impl HttpStreamResponse {
                         }
 
                         log_error!("read_stream","Error reading streaming from {}. Return Empty body but continue. Error {}", &self.url, e);
-                        return Some(HttpResponse {
+                        Some(HttpResponse {
                             status_code: self.get_status(),
                             header: convert_headers(self.resp.headers()),
                             body: "".to_owned(),
                             remote_address: self.remote_address.clone(),
-                        });
+                        })
                     },
                 }
             }

@@ -106,8 +106,8 @@ impl HttpClient {
     ///Method set_header: Allows adding custom headers to the HTTP client dynamically.
     pub fn set_header(&mut self, header_name: &str, header_value: &str) {
         self.headers.insert(
-            HeaderName::from_str(&header_name).unwrap(),
-            HeaderValue::from_str(&header_value).unwrap(),
+            HeaderName::from_str(header_name).unwrap(),
+            HeaderValue::from_str(header_value).unwrap(),
         );
     }
 
@@ -140,12 +140,14 @@ impl HttpClient {
 //    pub async fn get( &self, url: &str, extra_headers: Option<HashMap<&str, &str>>, ) -> Result<HttpResponse, Error> {
     pub async fn get( &self, url: &str, extra_headers: Option<HashMap<String, String>>, ) -> Result<HttpResponse, Box<dyn std::error::Error>> {
         let local_headers = self.get_extra_headers(extra_headers);
-        match self.client.get(url).headers(local_headers).send().await {
+        let resp = self.client.get(url).headers(local_headers).send().await?;
+        Ok(Self::extract_response(resp, url, "GET").await)
+        /*match self.client.get(url).headers(local_headers).send().await {
             Ok(resp) => return Ok(Self::extract_response(resp, url, "GET").await),
             Err(e) => {
-                return Err(get_error!( "get", "Failed to get response from GET: {}. Error: {}", url, e).into())
+                Err(get_error!( "get", "Failed to get response from GET: {}. Error: {}", url, e).into())
             }
-        }
+        }*/
     }
 
 ///Method: post
@@ -161,18 +163,28 @@ impl HttpClient {
             ContentType::JSON => {
                 local_headers.insert(
                     header::CONTENT_TYPE,
-                    HeaderValue::from_str("application/json").unwrap(),
+                    HeaderValue::from_str("application/json")?,
                 );
             }
             ContentType::TEXT => {
                 local_headers.insert(
                     header::CONTENT_TYPE,
-                    HeaderValue::from_str("application/text").unwrap(),
+                    HeaderValue::from_str("application/text")?,
                 );
             }
         }
 
-        match self
+        let resp = self
+            .client
+            .post(url)
+            .headers(local_headers)
+            .body(body_request.to_string())
+            .send()
+            .await?;
+
+        return Ok(Self::extract_response(resp, url, "POST").await)
+
+        /*match self
             .client
             .post(url)
             .headers(local_headers)
@@ -182,9 +194,9 @@ impl HttpClient {
         {
             Ok(resp) => return Ok(Self::extract_response(resp, url, "POST").await),
             Err(e) => {
-                return Err(get_error!( "post", "Failed to get response from POST ({:?}): {}. Error: {}", content_type, url, e ).into() )
+                Err(get_error!( "post", "Failed to get response from POST ({:?}): {}. Error: {}", content_type, url, e ).into() )
             }
-        }
+        }*/
     }
 
     pub async fn post_stream( &self, url: &str, extra_headers: Option<HashMap<String, String>>, body_request: &str, content_type: ContentType, ) -> Result<HttpStreamResponse,  Box<dyn std::error::Error>> {
@@ -194,18 +206,27 @@ impl HttpClient {
             ContentType::JSON => {
                 local_headers.insert(
                     header::CONTENT_TYPE,
-                    HeaderValue::from_str("application/json").unwrap(),
+                    HeaderValue::from_str("application/json")?,
                 );
             }
             ContentType::TEXT => {
                 local_headers.insert(
                     header::CONTENT_TYPE,
-                    HeaderValue::from_str("application/text").unwrap(),
+                    HeaderValue::from_str("application/text")?,
                 );
             }
         }
 
-        match self
+        let resp = self
+            .client
+            .post(url)
+            .headers(local_headers)
+            .body(body_request.to_string())
+            .send()
+            .await?;
+        Ok(HttpStreamResponse::new(resp))
+
+        /*match self
             .client
             .post(url)
             .headers(local_headers)
@@ -213,11 +234,11 @@ impl HttpClient {
             .send()
             .await
         {
-            Ok(resp) => return Ok(HttpStreamResponse::new(resp)),
+            Ok(resp) => Ok(HttpStreamResponse::new(resp)),
             Err(e) => {
-                return Err(get_error!( "post_stream", "Failed to get stream response from POST ({:?}): {}. Error: {}", content_type, url, e ).into() )
+                Err(get_error!( "post_stream", "Failed to get stream response from POST ({:?}): {}. Error: {}", content_type, url, e ).into() )
             }
-        }
+        }*/
     }
 
 ///Method: request
@@ -261,13 +282,13 @@ impl HttpClient {
             ContentType::JSON => {
                 local_headers.insert(
                     header::CONTENT_TYPE,
-                    HeaderValue::from_str("application/json").unwrap(),
+                    HeaderValue::from_str("application/json")?,
                 );
             }
             ContentType::TEXT => {
                 local_headers.insert(
                     header::CONTENT_TYPE,
-                    HeaderValue::from_str("application/text").unwrap(),
+                    HeaderValue::from_str("application/text")?,
                 );
             }
         }
@@ -279,10 +300,10 @@ impl HttpClient {
 
         let request = 
         if method == Method::GET{
-            let url_with_params = if qry_params.len() > 0 {
-                                Url::parse_with_params(&url, &qry_params).unwrap() //FixMe: Control this unwrap. manage error
+            let url_with_params = if !qry_params.is_empty() {
+                                Url::parse_with_params(&url, &qry_params)? 
                             }else{
-                                Url::parse(&url).unwrap() //FixMe: Control this unwrap. manage error
+                                Url::parse(&url)? 
                             };
             self.client.get(url_with_params).headers(local_headers)                            
             //request = request.query(&qry_params); // Use remaining params as query parameters if any
@@ -296,6 +317,7 @@ impl HttpClient {
                                 .map(|(k, v)| format!("{}={}", k, v))
                                 .collect::<Vec<String>>()
                                 .join("&");
+                            log_verbose!("request","Body: {}", body_data);
                                 req = req.body(body_data)
                             }
                     }       
@@ -303,16 +325,19 @@ impl HttpClient {
             req
         };
 
-        match request
+        let resp = request.send().await?;
+        Ok(Self::extract_response(resp, &url, request_method.to_uppercase().as_str()).await)
+
+        /*match request
             .send()
             .await
         {
-            Ok(resp) => return Ok(Self::extract_response(resp, &url, request_method.to_uppercase().as_str()).await),
+            Ok(resp) => Ok(Self::extract_response(resp, &url, request_method.to_uppercase().as_str()).await),
             Err(e) => {
-                return Err(get_error!( "request", "Failed to get response from {} ({:?}): {}. Error: {}", &method, content_type, url, e)
+                Err(get_error!( "request", "Failed to get response from {} ({:?}): {}. Error: {}", &method, content_type, url, e)
                                     .into())
             }
-        }
+        }*/
     }
 
  ///Helper Method: extract_response
@@ -322,19 +347,19 @@ impl HttpClient {
         let ra = match resp.remote_addr() {
             Some(ip) => ip.ip().to_string(),
             None => {
-                log_warning!("extract_response", "Remote Address not found. Using default 0.0.0.0");
+                log_warning!("extract_response", "Remote Address not found in Response. Using default 0.0.0.0");
                 "0.0.0.0".to_owned()
             },
         };
 
-        if resp.status().is_client_error() || resp.status().is_server_error() {
+        if resp.status().is_client_error() || resp.status().is_server_error() || resp.status().as_u16() >= 600 {
             log_error!( "extract_response", "ERROR: Failed to get response from {}: {} Status Code: {}", method, url, resp.status() );
-            return HttpResponse {
+            HttpResponse {
                 status_code: resp.status().as_u16(),
                 header: convert_headers(resp.headers()),
                 body: format!( "ERROR: Failed to get response from {}:{} -Error: {}", method, url, resp.status().canonical_reason().unwrap_or("UNKNOWN ERROR!") ),
                 remote_address: ra
-            };
+            }
         } else {
             let mut full_body = String::new();
             let mut error_count = 0;
@@ -358,34 +383,40 @@ impl HttpClient {
                                 return HttpResponse {
                                     status_code: resp.status().as_u16(),
                                     header: convert_headers(resp.headers()),
-                                    body: resp.text().await.expect(full_body.as_str() ),
+                                    body: match resp.text().await{
+                                        //expect(full_body.as_str() ),
+                                        Ok(b) => b,
+                                        Err(e) => {
+                                            log_error!("extract_response","ERROR: Failed to get payload from {}:{}. Error: {}",method,url,e);
+                                            full_body
+                                        },
+                                                                            },
                                         //get_error!("extract_response","ERROR: Failed to get payload from {}:{}",method,url)
                                         //    .as_str(),
                                         //),
                                     remote_address: ra,
                                 };
                             }
-                            error_count = error_count + 1;
+                            error_count += 1;
                             log_error!("extract_response","Error reading answer body (error count={}). Error {}",error_count,e);                
                         },
                     }
                 }
             }else{
-                full_body = resp.text().await.expect(
-                        get_error!("extract_response","ERROR: Failed to get payload when status = {} from {}:{}",rstatus, method,url)
-                        .as_str(),
-                    );
+                full_body = match resp.text().await{
+                    Ok(b) => b,
+                    Err(e) => {
+                        log_error!("extract_response","ERROR: Failed to get payload when status = {} from {}:{}. Error: {}",rstatus, method,url,e);                        
+                        format!("ERROR: Failed to get payload when status = {} from {}",rstatus, method)
+                    },
+                };
             }
-            return HttpResponse {
+            HttpResponse {
                 status_code: rstatus, // resp.status().as_u16(),
                 header: rheader, //Self::convert_headers(resp.headers()),
-                //body: resp.text().await.expect(
-                //    get_error!("extract_response","ERROR: Failed to get payload from {}:{}",method,url)
-                //    .as_str(),
-                //),
                 body: full_body,
                 remote_address: ra,
-            };
+            }
         }
     }
 
