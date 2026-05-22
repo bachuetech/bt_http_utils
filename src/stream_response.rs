@@ -43,7 +43,7 @@ impl HttpStreamResponse {
         let ra = match http_resp.remote_addr() {
             Some(ip) => ip.ip().to_string(),
             None => {
-                log_warning!("new", "Remote Address not found. Using default 0.0.0.0");
+                log_warning!("", "Remote Address not found. Using default 0.0.0.0");
                 "0.0.0.0".to_owned()
             },
         };
@@ -73,7 +73,7 @@ impl HttpStreamResponse {
 
     pub async fn read_stream(&mut self) -> Option<HttpResponse> {
         if self.is_error() { //if response.status().is_client_error() || response.status().is_server_error() {
-            log_error!( "read_stream", "ERROR: Failed to read stream response from {}. Status Code: {} ({})", self.url,self.get_status(),self.ini_status_str );
+            log_error!( "", "ERROR: Failed to read stream response from {}. Status Code: {} ({})", self.url,self.get_status(),self.ini_status_str );
             Some(HttpResponse {
                 status_code: self.get_status(),//response.status().as_u16(),
                 header: self.get_ini_header(), //convert_headers(response.headers()),
@@ -99,11 +99,11 @@ impl HttpStreamResponse {
                     Err(e) => {
                         self.error_count += 1;
                         if self.error_count > MAX_NUMBER_ERROR{
-                           log_error!("read_stream","Error reading streaming (>{} errors) from {}. Stop Executing returning None. Error {}",MAX_NUMBER_ERROR, self.url, e);
+                           log_error!("","Error reading streaming (>{} errors) from {}. Stop Executing returning None. Error {}",MAX_NUMBER_ERROR, self.url, e);
                            return None //Stop
                         }
 
-                        log_error!("read_stream","Error reading streaming from {}. Return Empty body but continue. Error {}", &self.url, e);
+                        log_error!("","Error reading streaming from {}. Return Empty body but continue. Error {}", &self.url, e);
                         Some(HttpResponse {
                             status_code: self.get_status(),
                             header: convert_headers(self.resp.headers()),

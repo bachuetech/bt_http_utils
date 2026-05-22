@@ -27,7 +27,7 @@ fn get_cert_files() -> Vec<String> {
             }
         }
     } else {
-        log_info!("get_cert_files","Could not read directory '{}'. Assuming no local certificates (PEM files)", &cert_dir);
+        log_info!("","Could not read directory '{}'. Assuming no local certificates (PEM files)", &cert_dir);
     }
 
     certs
@@ -48,13 +48,13 @@ pub(crate) fn get_local_certificates(danger_accept_invalid: Option<Vec<(String,b
                         Ok(cert) => {
                                 tls_builder.add_root_certificate(cert);
                         },
-                        Err(e) => log_error!("get_local_certificate", "Could not read PEM file at path: {}. Error: {}",cert_path,e),
+                        Err(e) => log_error!("", "Could not read PEM file at path: {}. Error: {}",cert_path,e),
                     }
                 },
-                Err(e) => log_error!("get_local_certificate", "Could not read PEM file at path: {}. Error: {}",cert_path,e),
+                Err(e) => log_error!("", "Could not read PEM file at path: {}. Error: {}",cert_path,e),
             }
         }else{
-            log_error!("get_local_certificate", "Invalid certificate path: {}",cert_path);
+            log_error!("", "Invalid certificate path: {}",cert_path);
         }
     }
 
@@ -66,7 +66,7 @@ pub(crate) fn get_local_certificates(danger_accept_invalid: Option<Vec<(String,b
                     if item.0 == DANGER_ACCEPT_INVALID_CERTS {
                         tls_builder.danger_accept_invalid_certs(item.1);
                     }else{
-                        log_warning!("get_local_certificates","Inalid Danger Accept Invalid key {}",item.0);
+                        log_warning!("","Inalid Danger Accept Invalid key {}",item.0);
                     }
                 }
             }
@@ -75,7 +75,7 @@ pub(crate) fn get_local_certificates(danger_accept_invalid: Option<Vec<(String,b
     match tls_builder.build(){
         Ok(conn) => Some(conn),
         Err(e) => {
-            log_error!("get_local_certificate","Could not built TLS Connector. Error {}",&e);
+            log_error!("","Could not built TLS Connector. Error {}",&e);
             None
         }
     }

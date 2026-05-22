@@ -59,7 +59,9 @@ A simple HTTP wrapper to simplify POST and GET calls.
 * 0.7.2
     * Update dependencies. Internal changes due to the updates.
 * 0.7.4
-    * Update dependencies. Internal changes for readibility, follow clippy recommendations. Clean code    
+    * Update dependencies. Internal changes for readibility, follow clippy recommendations. Clean code 
+* 0.7.5
+    * Update dependencies and internal related changes.
 
 ## License
 GPL-3.0-only

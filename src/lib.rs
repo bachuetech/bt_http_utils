@@ -268,7 +268,7 @@ impl HttpClient {
                     url = url.replace(&format!("{{{}}}", &path_param.0), &path_param.1);
                     qry_params.remove(&path_param.0); //Remove used path_param to use remaining params as query parameters
                 } else {
-                    log_verbose!("request","Path parameter '{:?}' not provided. Parameter will be used as Query parameter", &path_param.0);
+                    log_verbose!("","Path parameter '{:?}' not provided. Parameter will be used as Query parameter", &path_param.0);
                 }
             }
         }else{
@@ -317,7 +317,6 @@ impl HttpClient {
                                 .map(|(k, v)| format!("{}={}", k, v))
                                 .collect::<Vec<String>>()
                                 .join("&");
-                            log_verbose!("request","Body: {}", body_data);
                                 req = req.body(body_data)
                             }
                     }       
@@ -347,13 +346,13 @@ impl HttpClient {
         let ra = match resp.remote_addr() {
             Some(ip) => ip.ip().to_string(),
             None => {
-                log_warning!("extract_response", "Remote Address not found in Response. Using default 0.0.0.0");
+                log_warning!("", "Remote Address not found in Response. Using default 0.0.0.0");
                 "0.0.0.0".to_owned()
             },
         };
 
         if resp.status().is_client_error() || resp.status().is_server_error() || resp.status().as_u16() >= 600 {
-            log_error!( "extract_response", "ERROR: Failed to get response from {}: {} Status Code: {}", method, url, resp.status() );
+            log_error!( "", "ERROR: Failed to get response from {}: {} Status Code: {}", method, url, resp.status() );
             HttpResponse {
                 status_code: resp.status().as_u16(),
                 header: convert_headers(resp.headers()),
@@ -379,7 +378,7 @@ impl HttpClient {
                         },
                         Err(e) => {
                             if error_count > 3{
-                                log_error!("extract_response","Too many errors (>3 times) reading answer body. Stop Executing and return what was collected. Error {}",e);
+                                log_error!("","Too many errors (>3 times) reading answer body. Stop Executing and return what was collected. Error {}",e);
                                 return HttpResponse {
                                     status_code: resp.status().as_u16(),
                                     header: convert_headers(resp.headers()),
@@ -387,18 +386,18 @@ impl HttpClient {
                                         //expect(full_body.as_str() ),
                                         Ok(b) => b,
                                         Err(e) => {
-                                            log_error!("extract_response","ERROR: Failed to get payload from {}:{}. Error: {}",method,url,e);
+                                            log_error!("","ERROR: Failed to get payload from {}:{}. Error: {}",method,url,e);
                                             full_body
                                         },
                                                                             },
-                                        //get_error!("extract_response","ERROR: Failed to get payload from {}:{}",method,url)
+                                        //get_error!("","ERROR: Failed to get payload from {}:{}",method,url)
                                         //    .as_str(),
                                         //),
                                     remote_address: ra,
                                 };
                             }
                             error_count += 1;
-                            log_error!("extract_response","Error reading answer body (error count={}). Error {}",error_count,e);                
+                            log_error!("","Error reading answer body (error count={}). Error {}",error_count,e);                
                         },
                     }
                 }
@@ -406,7 +405,7 @@ impl HttpClient {
                 full_body = match resp.text().await{
                     Ok(b) => b,
                     Err(e) => {
-                        log_error!("extract_response","ERROR: Failed to get payload when status = {} from {}:{}. Error: {}",rstatus, method,url,e);                        
+                        log_error!("","ERROR: Failed to get payload when status = {} from {}:{}. Error: {}",rstatus, method,url,e);                        
                         format!("ERROR: Failed to get payload when status = {} from {}",rstatus, method)
                     },
                 };
