@@ -62,6 +62,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * Update dependencies. Internal changes for readibility, follow clippy recommendations. Clean code 
 * 0.7.5
     * Update dependencies and internal related changes.
+* 0.8.0
+    * Move Results to use bt_any_error, using AnyErr instead of Box<dyn Error>     
 
 ## License
 GPL-3.0-only

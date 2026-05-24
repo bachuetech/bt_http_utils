@@ -11,6 +11,7 @@ use std::{
     collections::HashMap, str::FromStr, sync::Arc
 };
 
+use bt_any_error::any_err::AnyErr;
 use bt_logger::{get_error, log_error, log_verbose, log_warning};
 use ext_certs::get_local_certificates;
 use reqwest::{
@@ -138,7 +139,7 @@ impl HttpClient {
 ///It takes two parameters: url and extra_headers. If extra_headers is Some, it adds the headers to the existing headers in the client. 
 /// The method returns an HttpResponse instance containing the response from the GET request. 
 //    pub async fn get( &self, url: &str, extra_headers: Option<HashMap<&str, &str>>, ) -> Result<HttpResponse, Error> {
-    pub async fn get( &self, url: &str, extra_headers: Option<HashMap<String, String>>, ) -> Result<HttpResponse, Box<dyn std::error::Error>> {
+    pub async fn get( &self, url: &str, extra_headers: Option<HashMap<String, String>>, ) -> Result<HttpResponse, AnyErr> {
         let local_headers = self.get_extra_headers(extra_headers);
         let resp = self.client.get(url).headers(local_headers).send().await?;
         Ok(Self::extract_response(resp, url, "GET").await)
@@ -156,7 +157,7 @@ impl HttpClient {
 /// The method returns an HttpResponse instance containing the response from the POST request. 
 //    pub async fn post( &self, url: &str, extra_headers: Option<HashMap<&str, &str>>, body_request: &str, content_type: ContentType, ) -> Result<HttpResponse, Error> {
     pub async fn post( &self, url: &str, extra_headers: Option<HashMap<String, String>>, body_request: &str, content_type: ContentType, ) 
-                        -> Result<HttpResponse,  Box<dyn std::error::Error>> {
+                        -> Result<HttpResponse,  AnyErr> {
         //log_verbose!("post", "Getting {} with payload: {}", url, body_request);
         let mut local_headers = self.get_extra_headers(extra_headers); //self.headers.clone();
         match content_type {
@@ -199,7 +200,7 @@ impl HttpClient {
         }*/
     }
 
-    pub async fn post_stream( &self, url: &str, extra_headers: Option<HashMap<String, String>>, body_request: &str, content_type: ContentType, ) -> Result<HttpStreamResponse,  Box<dyn std::error::Error>> {
+    pub async fn post_stream( &self, url: &str, extra_headers: Option<HashMap<String, String>>, body_request: &str, content_type: ContentType, ) -> Result<HttpStreamResponse,  AnyErr> {
         //log_verbose!("post", "Getting {} with payload: {}", url, body_request);
         let mut local_headers = self.get_extra_headers(extra_headers); //self.headers.clone();
         match content_type {
@@ -247,7 +248,7 @@ impl HttpClient {
 /// The method returns an HttpResponse instance containing the response from the request.
 //    pub async fn request( &self, request_method: &str, url_with_ep_path: &str, extra_headers: Option<HashMap<&str, &str>>, body_params: Option<HashMap<String, String>>, 
     pub async fn request( &self, request_method: &str, url_with_ep_path: &str, extra_headers: Option<HashMap<String, String>>, body_params: Option<HashMap<String, String>>, 
-                        query_params: Option<HashMap<String, String>>, content_type: ContentType, ) -> Result<HttpResponse, Box<dyn std::error::Error>> {
+                        query_params: Option<HashMap<String, String>>, content_type: ContentType, ) -> Result<HttpResponse, AnyErr> {
         let method = match request_method.to_uppercase().as_str() {
             "GET" => Method::GET,
             "POST" => Method::POST,

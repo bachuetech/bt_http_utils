@@ -8,7 +8,6 @@ use bt_logger::{LogLevel, LogTarget, build_logger, log_verbose};
 #[cfg(test)]
 const SERVER: &str = "://localhost";
 
-
 #[tokio::test]
 async fn test_streaming_post(){
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
