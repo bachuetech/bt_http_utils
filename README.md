@@ -66,6 +66,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * Move Results to use bt_any_error, using AnyErr instead of Box<dyn Error>
 * 0.8.1
     * Update dependency       
+* 0.8.2
+    * Update dependency     
 
 ## License
 GPL-3.0-only
