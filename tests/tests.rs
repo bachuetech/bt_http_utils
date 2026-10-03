@@ -13,7 +13,7 @@ async fn test_streaming_post(){
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     let url = "http://localhost:11434/api/chat";
     let http_client = HttpClient::new(false, true, None);
-    let param = "{\"model\": \"deepseek-r1-tool:latest\",\"messages\":[{\"role\": \"user\",\"content\": \"Write a hello world program in Rust\"}]}";
+    let param = "{\"model\": \"llama3.1:latest\",\"messages\":[{\"role\": \"user\",\"content\": \"Write a hello world program in Rust\"}]}";
     let resp = http_client.post_stream(url, None, param, ContentType::JSON).await;
     let mut r = resp.unwrap();
     let hr = r.read_stream().await.unwrap();
@@ -41,7 +41,7 @@ async fn test_post_stream_reach_end(){
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     let url = "http://localhost:11434/api/chat";
     let http_client = HttpClient::new(false, true, None);
-    let param = "{\"model\": \"deepseek-r1-tool:latest\",\"messages\":[{\"role\": \"user\",\"content\": \"Write a hello world program in Rust\"}]}";
+    let param = "{\"model\": \"llama3.1:latest\",\"messages\":[{\"role\": \"user\",\"content\": \"Write a hello world program in Rust\"}]}";
     let resp = http_client.post_stream(url, None, param, ContentType::JSON).await;
     //println!("RESP: {:?}",&resp);
     let mut r = resp.unwrap();
