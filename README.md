@@ -67,7 +67,9 @@ A simple HTTP wrapper to simplify POST and GET calls.
 * 0.8.1
     * Update dependency       
 * 0.8.2
-    * Update dependency     
+    * Update dependency    
+* 0.8.3
+    * Update dependency      
 
 ## License
 GPL-3.0-only
