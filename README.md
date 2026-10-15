@@ -74,7 +74,9 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * Update dependency
     * Breaking change: use CamelCase for the ContentType enum
     * Internal changes to improve performance and stability
-
+* 0.9.1
+    * Fix crate documentation using an inner doc comment
+    * Minor clippy recommendation change
 
 ## License
 GPL-3.0-only

@@ -1,6 +1,6 @@
-/// Defines a HttpClient struct and its associated methods, which provides a simple and efficient way to make HTTP requests.
-/// It includes methods to set custom headers and retrieve default headers, as well as handling cookies if needed.
-/// It also defines an HttpResponse struct to represent the response from a HTTP request.
+//! Defines a HttpClient struct and its associated methods, which provides a simple and efficient way to make HTTP requests.
+//! It includes methods to set custom headers and retrieve default headers, as well as handling cookies if needed.
+//! It also defines an HttpResponse struct to represent the response from a HTTP request.
 
 mod ext_certs;
 pub mod stream_response;
@@ -217,20 +217,19 @@ impl HttpClient {
 
         let mut req = self.client.request(method.clone(), url).headers(headers);
 
-        if method != Method::GET {
-            if let Some(params) = body_params {
-                req = match content_type {
-                    ContentType::Json => req.json(&params),
-                    ContentType::Text => {
-                        let body: String = params.iter()
-                            .map(|(k, v)| format!("{}={}", k, v))
-                            .collect::<Vec<_>>()
-                            .join("&");
-                        req.body(body)
-                    }
-                };
-            }
+        if method != Method::GET && let Some(params) = body_params {
+            req = match content_type {
+                ContentType::Json => req.json(&params),
+                ContentType::Text => {
+                    let body: String = params.iter()
+                        .map(|(k, v)| format!("{}={}", k, v))
+                        .collect::<Vec<_>>()
+                        .join("&");
+                    req.body(body)
+                }
+            };
         }
+
 
         let resp = req.send().await?;
         Ok(Self::extract_response(resp, &url_str, method.as_str()).await)
