@@ -9,8 +9,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
     let http_client = HttpClient::new(false, false);
 
     let resp_get = http_client.get(&url, None).await; 
-    let resp_post_txt = http_client.post(&url, None, body, ContentType::TEXT).await;
-    let resp_post_json = http_client.post(&url, None, body, ContentType::JSON).await;
+    let resp_post_txt = http_client.post(&url, None, body, ContentType::Text).await;
+    let resp_post_json = http_client.post(&url, None, body, ContentType::Json).await;
 
     ///Fields available
     resp.unwrap().body;
@@ -69,7 +69,12 @@ A simple HTTP wrapper to simplify POST and GET calls.
 * 0.8.2
     * Update dependency    
 * 0.8.3
-    * Update dependency      
+    * Update dependency 
+* 0.9.0
+    * Update dependency
+    * Breaking change: use CamelCase for the ContentType enum
+    * Internal changes to improve performance and stability
+
 
 ## License
 GPL-3.0-only

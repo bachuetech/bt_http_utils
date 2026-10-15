@@ -29,7 +29,6 @@ const MAX_NUMBER_ERROR: i8 = 5;
 ///     * It processes each chunk individually, converting it to a string if possible.
 #[derive(Debug)]
 pub struct HttpStreamResponse {
-    //ini_status_code: u16,
     ini_status_str: String,
     ini_header: HashMap<String, String>,
     url: String,

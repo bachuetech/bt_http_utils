@@ -6,7 +6,7 @@ use bt_http_utils::{self, ContentType, HttpClient, DANGER_ACCEPT_INVALID_CERTS, 
 use bt_logger::{LogLevel, LogTarget, build_logger, log_verbose};
 
 #[cfg(test)]
-const SERVER: &str = "://localhost";
+const SERVER: &str = "://nasag2012";
 
 #[tokio::test]
 async fn test_streaming_post(){
@@ -14,7 +14,7 @@ async fn test_streaming_post(){
     let url = "http://localhost:11434/api/chat";
     let http_client = HttpClient::new(false, true, None);
     let param = "{\"model\": \"llama3.1:latest\",\"messages\":[{\"role\": \"user\",\"content\": \"Write a hello world program in Rust\"}]}";
-    let resp = http_client.post_stream(url, None, param, ContentType::JSON).await;
+    let resp = http_client.post_stream(url, None, param, ContentType::Json).await;
     let mut r = resp.unwrap();
     let hr = r.read_stream().await.unwrap();
     println!("Ans: {:?}",hr);
@@ -28,7 +28,7 @@ async fn test_post_stream_unknown_ep(){
     let url = "http://localhost:11434/api/unknown";
     let http_client = HttpClient::new(false, true, None);
     let param = "{\"nothing\":\"nothing\"}";
-    let resp = http_client.post_stream(url, None, param, ContentType::JSON).await;
+    let resp = http_client.post_stream(url, None, param, ContentType::Json).await;
     let mut r = resp.unwrap();
     let hr = r.read_stream().await.unwrap();
     println!("Ans: {:?}",&hr);
@@ -42,7 +42,7 @@ async fn test_post_stream_reach_end(){
     let url = "http://localhost:11434/api/chat";
     let http_client = HttpClient::new(false, true, None);
     let param = "{\"model\": \"llama3.1:latest\",\"messages\":[{\"role\": \"user\",\"content\": \"Write a hello world program in Rust\"}]}";
-    let resp = http_client.post_stream(url, None, param, ContentType::JSON).await;
+    let resp = http_client.post_stream(url, None, param, ContentType::Json).await;
     //println!("RESP: {:?}",&resp);
     let mut r = resp.unwrap();
     //println!("R: {:?}",&r);
@@ -61,7 +61,7 @@ async fn test_request_err_notfound_no_hickory(){
     let url = format!("{}{}/uh/api.php","http",SERVER);
 
     let http_client = HttpClient::new(false, true, None);
-    let resp = http_client.request("get",&url, None, None, None, ContentType::JSON).await;
+    let resp = http_client.request("get",&url, None, None, None, ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().status_code,404);
 }
@@ -73,7 +73,7 @@ async fn test_request_err_missparam_no_hickory(){
     let url = format!("{}{}/uh/api.php/posts/","http",SERVER);
 
     let http_client = HttpClient::new(false, true, None);
-    let resp = http_client.request("post",&url, None, None, None, ContentType::JSON).await;
+    let resp = http_client.request("post",&url, None, None, None, ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().status_code,400);
 }
@@ -90,7 +90,7 @@ async fn test_request_post_no_hickory(){
 
     let http_client = HttpClient::new(false, true, None);
 
-    let resp = http_client.request("post",&url, None, Some(param), None, ContentType::JSON).await;
+    let resp = http_client.request("post",&url, None, Some(param), None, ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -110,11 +110,11 @@ async fn test_request_post_all(){
     let mut headerp: HashMap<String, String> = HashMap::new();
     headerp.insert("key".to_string(), "Key1".to_string());
 
-    let test_content = "Key: Key1, Name: omega, Last Name: No last name provided, Age: 25";
+    let test_content = "Key: Key1, Name: omega, Last Name: alpha, Age: 25";
 
     let http_client = HttpClient::new(false, true, None);
 
-    let resp = http_client.request("post",&url, Some(headerp), Some(bodyp), Some(param), ContentType::TEXT).await;
+    let resp = http_client.request("post",&url, Some(headerp), Some(bodyp), Some(param), ContentType::Text).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -137,7 +137,7 @@ async fn test_request_get_all(){
 
     let http_client = HttpClient::new(false, true, None);
 
-    let resp = http_client.request("get",&url, Some(headerp), Some(bodyp), Some(param), ContentType::JSON).await;
+    let resp = http_client.request("get",&url, Some(headerp), Some(bodyp), Some(param), ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -147,7 +147,7 @@ async fn test_request_get_sec(){
     build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     let url = "https://www.bachuetech.biz/";
     let http_client = HttpClient::new(false, true, None);
-    let resp = http_client.request("get",&url, None, None, None, ContentType::TEXT).await;
+    let resp = http_client.request("get",&url, None, None, None, ContentType::Text).await;
     //println!("Body: {:?}",&resp);
     assert!(resp.is_ok());
     assert!(resp.unwrap().body.len() > 0);
@@ -169,7 +169,7 @@ async fn test_request_post_text_no_hickory_sec_only(){
 
     let http_client = HttpClient::new(false, true, Some(dar));
 
-    let resp = http_client.request("post",&url, None, Some(param), None, ContentType::TEXT).await;
+    let resp = http_client.request("post",&url, None, Some(param), None, ContentType::Text).await;
     log_verbose!("test_request_post_text_no_hickory_sec_only","Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -190,7 +190,7 @@ async fn test_request_post_text_no_hickory_sec_invalid(){
 
     let http_client = HttpClient::new(false, true, Some(dar));
 
-    let resp = http_client.request("post",&url, None, Some(param), None, ContentType::TEXT).await;
+    let resp = http_client.request("post",&url, None, Some(param), None, ContentType::Text).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -208,7 +208,7 @@ async fn test_request_post_text_no_hickory(){
 
     let http_client = HttpClient::new(false, true, None);
 
-    let resp = http_client.request("post",&url, None, Some(param), None, ContentType::TEXT).await;
+    let resp = http_client.request("post",&url, None, Some(param), None, ContentType::Text).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -221,7 +221,7 @@ async fn test_request_delete_direct_param_no_hickory(){
     let url = format!("{}{}/uh/api.php/delete/1","http",SERVER);
 
     let http_client = HttpClient::new(false, true, None);
-    let resp = http_client.request("delete",&url, None, None, None, ContentType::JSON).await;
+    let resp = http_client.request("delete",&url, None, None, None, ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -236,7 +236,7 @@ async fn test_request_delete_qry_param_no_hickory(){
     let url = format!("{}{}/uh/api.php/delete/{{userid}}","http",SERVER);
 
     let http_client = HttpClient::new(false, true, None);
-    let resp = http_client.request("delete",&url, None, None, Some(param), ContentType::JSON).await;
+    let resp = http_client.request("delete",&url, None, None, Some(param), ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -249,7 +249,7 @@ async fn test_request_get_noparam_no_hickory(){
     let url = format!("{}{}/uh/api.php/get","http",SERVER);
 
     let http_client = HttpClient::new(false, true, None);
-    let resp = http_client.request("get",&url, None, None, None, ContentType::JSON).await;
+    let resp = http_client.request("get",&url, None, None, None, ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -262,7 +262,7 @@ async fn test_request_put_with_direct_param_no_hickory(){
     let url = format!("{}{}/uh/api.php/todos/2","http",SERVER);
 
     let http_client = HttpClient::new(false, true, None);
-    let resp = http_client.request("put",&url, None, None, None, ContentType::JSON).await;
+    let resp = http_client.request("put",&url, None, None, None, ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -275,7 +275,7 @@ async fn test_request_patch_with_direct_param_no_hickory(){
     let url = format!("{}{}/uh/api.php/todos/2","http",SERVER);
 
     let http_client = HttpClient::new(false, true, None);
-    let resp = http_client.request("patch",&url, None, None, None, ContentType::JSON).await;
+    let resp = http_client.request("patch",&url, None, None, None, ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -288,7 +288,7 @@ async fn test_request_get_with_direct_param_no_hickory(){
     let url = format!("{}{}/uh/api.php/get/2","http",SERVER);
 
     let http_client = HttpClient::new(false, true, None);
-    let resp = http_client.request("get",&url, None, None, None, ContentType::JSON).await;
+    let resp = http_client.request("get",&url, None, None, None, ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -304,7 +304,7 @@ async fn test_request_get_qry_param_no_hickory(){
     let url = format!("{}{}/uh/api.php/get/{{id}}","http",SERVER);
 
     let http_client = HttpClient::new(false, true, None);
-    let resp = http_client.request("get",&url, None, None, Some(param), ContentType::JSON).await;
+    let resp = http_client.request("get",&url, None, None, Some(param), ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -321,7 +321,7 @@ async fn test_request_get_extra_qry_param_no_hickory(){
     let url = format!("{}{}/uh/api.php/get/{{id}}/","http",SERVER);
 
     let http_client = HttpClient::new(false, true, None);
-    let resp = http_client.request("get",&url, None, None, Some(param), ContentType::JSON).await;
+    let resp = http_client.request("get",&url, None, None, Some(param), ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -440,7 +440,7 @@ async fn test_json_post_hickory(){
     let url = format!("{}{}/test_post.php","http",SERVER);
 
     let http_client = HttpClient::new(true, true, None);
-    let resp = http_client.post(&url, None, body, ContentType::JSON).await;
+    let resp = http_client.post(&url, None, body, ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -456,7 +456,7 @@ async fn test_text_post_hickory(){
     let url = format!("{}{}/test_post.php","http",SERVER);
 
     let http_client = HttpClient::new(true, true, None);
-    let resp = http_client.post(&url, None, body, ContentType::TEXT).await;
+    let resp = http_client.post(&url, None, body, ContentType::Text).await;
     println!("Body: {:?}",&resp); 
 
 
@@ -477,7 +477,7 @@ async fn test_text_post_hickory_extra_headers(){
     extra.insert("btai_session_id".to_string(), "A_12dkk3dsd".to_string());
 
     let http_client = HttpClient::new(true, true, None);
-    let resp = http_client.post(&url, Some(extra), body, ContentType::TEXT).await;
+    let resp = http_client.post(&url, Some(extra), body, ContentType::Text).await;
     println!("Body: {:?}",&resp); 
 
 
@@ -493,7 +493,7 @@ async fn test_json_post_hickory_fail(){
     let url = format!("{}{}/test_post_fake.php","http",SERVER);
 
     let http_client = HttpClient::new(true, true, None);
-    let resp = http_client.post(&url, None, "", ContentType::JSON).await;
+    let resp = http_client.post(&url, None, "", ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().is_error(),true);
 }
@@ -586,7 +586,7 @@ async fn test_json_post_hickory_nc(){
     let url = format!("{}{}/test_post.php","http",SERVER);
 
     let http_client = HttpClient::new(true, false, None);
-    let resp = http_client.post(&url, None, body, ContentType::JSON).await;
+    let resp = http_client.post(&url, None, body, ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().body,test_content);
 }
@@ -602,7 +602,7 @@ async fn test_text_post_hickory_nc(){
     let url = format!("{}{}/test_post.php","http",SERVER);
 
     let http_client = HttpClient::new(true, false, None);
-    let resp = http_client.post(&url, None, body, ContentType::TEXT).await;
+    let resp = http_client.post(&url, None, body, ContentType::Text).await;
     println!("Body: {:?}",&resp); 
 
 
@@ -618,7 +618,7 @@ async fn test_json_post_hickory_fail_nc(){
     let url = format!("{}{}/test_post_fake.php","http",SERVER);
 
     let http_client = HttpClient::new(true, false, None);
-    let resp = http_client.post(&url, None, "", ContentType::JSON).await;
+    let resp = http_client.post(&url, None, "", ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().is_error(),true);
 }
