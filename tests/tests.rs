@@ -188,6 +188,29 @@ async fn test_request_get_sec(){
 }
 
 #[tokio::test]
+async fn test_request_get_timeout(){
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
+    let url = "https://www.bachuetech.biz/";
+    let http_client = HttpClient::new(false, true, None);
+    let resp = http_client.get_with_timeout( &url, 1,None).await;
+    //println!("Body: {:?}",&resp);
+    assert!(resp.is_err());
+    //assert!(resp.unwrap().body.len() > 0);
+}
+
+
+#[tokio::test]
+async fn test_request_get_timeout_success(){
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
+    let url = "https://www.bachuetech.biz/";
+    let http_client = HttpClient::new(false, true, None);
+    let resp = http_client.get_with_timeout( &url, 2000,None).await;
+    //println!("Body: {:?}",&resp);
+    assert!(resp.is_ok());
+    assert!(resp.unwrap().body.len() > 0);
+}
+
+#[tokio::test]
 async fn test_request_post_text_no_hickory_sec_only(){
     build_logger("BACHUETECH", "BT.HTTP.UTILS_TEST", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
     //env_logger::init();

@@ -180,6 +180,16 @@ impl HttpClient {
         Ok(Self::extract_response(resp, url, "GET").await)
     }
 
+    /// get_with_timeout
+    ///The get method is used to make a GET request to a specific URL
+    ///It takes three parameters: url, timeout and extra_headers. If extra_headers is Some, it adds the headers to the existing headers in the client. 
+    /// The method returns an HttpResponse instance containing the response from the GET request.     
+    pub async fn get_with_timeout(&self, url: &str, timeout: u64, extra_headers: Option<HashMap<String, String>>) -> Result<HttpResponse, AnyErr> {
+        let headers = self.build_headers(extra_headers, None);
+        let resp = self.client.get(url).timeout(Duration::from_millis(timeout)).headers(headers).send().await?;
+        Ok(Self::extract_response(resp, url, "GET").await)
+    }
+
     /// post
     ///The post method is used to make a POST request to a specific URL
     ///It takes four parameters: url, extra_headers, body_request, and content_type. 
@@ -187,6 +197,16 @@ impl HttpClient {
     pub async fn post(&self, url: &str, extra_headers: Option<HashMap<String, String>>, body: &str, content_type: ContentType) -> Result<HttpResponse, AnyErr> {
         let headers = self.build_headers(extra_headers, Some(content_type));
         let resp = self.client.post(url).headers(headers).body(body.to_owned()).send().await?;
+        Ok(Self::extract_response(resp, url, "POST").await)
+    }
+
+    /// post_with_timeout
+    ///The post method is used to make a POST request to a specific URL
+    ///It takes five parameters: url, timeout, extra_headers, body_request, and content_type. 
+    /// The method returns an HttpResponse instance containing the response from the POST request.     
+    pub async fn post_with_timeout(&self, url: &str, timeout: u64, extra_headers: Option<HashMap<String, String>>, body: &str, content_type: ContentType) -> Result<HttpResponse, AnyErr> {
+        let headers = self.build_headers(extra_headers, Some(content_type));
+        let resp = self.client.post(url).timeout(Duration::from_millis(timeout)).headers(headers).body(body.to_owned()).send().await?;
         Ok(Self::extract_response(resp, url, "POST").await)
     }
 

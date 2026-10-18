@@ -79,6 +79,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
     * Minor clippy recommendation change
 * 0.9.2
     * Added a new function request_with_timeout that receives the timeout in milliseconds for the request.
+* 0.9.3
+    * Added new functions get_with_timeout  and post_with_timeout that receive the timeout in milliseconds for the request.    
 
 ## License
 GPL-3.0-only
