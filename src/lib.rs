@@ -8,6 +8,7 @@ pub mod stream_response;
 pub const DANGER_ACCEPT_INVALID_HOSTNAMES: &str = "danger_accept_invalid_hostnames";
 pub const DANGER_ACCEPT_INVALID_CERTS: &str = "danger_accept_invalid_certs";
 
+use std::time::Duration;
 use std::{collections::HashMap, sync::Arc};
 use bt_any_error::any_err::AnyErr;
 use bt_logger::{get_error, log_error, log_warning};
@@ -230,6 +231,45 @@ impl HttpClient {
             };
         }
 
+        let resp = req.send().await?;
+        Ok(Self::extract_response(resp, &url_str, method.as_str()).await)
+    }
+
+    /// request_with_timeout
+    /// The request method is used to make a request to a specific URL using a specific HTTP method: currently tested, get, post, put, delete, patch, delete
+    /// It takes seven parameters: request_method, timeout, url_with_ep_path (URL with endpoint: path, path parameters), extra_headers, body_params, query_params, and content_type
+    /// The method returns an HttpResponse instance containing the response from the request.
+    pub async fn request_with_timeout(
+        &self,
+        method: &str,
+        timeout: u64,
+        url: &str,
+        extra_headers: Option<HashMap<String, String>>,
+        body_params: Option<HashMap<String, String>>,
+        query_params: Option<HashMap<String, String>>,
+        content_type: ContentType,
+    ) -> Result<HttpResponse, AnyErr> {
+        let method = Method::from_bytes(method.to_uppercase().as_bytes())
+            .map_err(|_| get_error!("request", "Unsupported HTTP method: {}", method))?;
+
+        let url = Self::build_url(url, query_params)?;
+        let url_str = url.as_str().to_owned();        
+        let headers = self.build_headers(extra_headers, Some(content_type));
+
+        let mut req = self.client.request(method.clone(), url).headers(headers).timeout(Duration::from_millis(timeout));
+
+        if method != Method::GET && let Some(params) = body_params {
+            req = match content_type {
+                ContentType::Json => req.json(&params),
+                ContentType::Text => {
+                    let body: String = params.iter()
+                        .map(|(k, v)| format!("{}={}", k, v))
+                        .collect::<Vec<_>>()
+                        .join("&");
+                    req.body(body)
+                }
+            };
+        }
 
         let resp = req.send().await?;
         Ok(Self::extract_response(resp, &url_str, method.as_str()).await)

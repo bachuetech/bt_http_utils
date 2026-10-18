@@ -6,7 +6,7 @@ use bt_http_utils::{self, ContentType, HttpClient, DANGER_ACCEPT_INVALID_CERTS, 
 use bt_logger::{LogLevel, LogTarget, build_logger, log_verbose};
 
 #[cfg(test)]
-const SERVER: &str = "://nasag2012";
+const SERVER: &str = "://localhost";
 
 #[tokio::test]
 async fn test_streaming_post(){
@@ -76,6 +76,40 @@ async fn test_request_err_missparam_no_hickory(){
     let resp = http_client.request("post",&url, None, None, None, ContentType::Json).await;
     println!("Body: {:?}",&resp);
     assert_eq!(resp.unwrap().status_code,400);
+}
+
+#[tokio::test]
+async fn test_request_post_timeout(){
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
+    
+    let url = format!("{}{}/uh/api.php/users/","http",SERVER);
+
+    let mut param: HashMap<String, String> = HashMap::new();
+    param.insert("name".to_string(), "C.Brown".to_string());
+    let test_content = "{\"id\":3,\"name\":\"C.Brown\"}";
+
+    let http_client = HttpClient::new(false, true, None);
+
+    let resp = http_client.request_with_timeout("post",1, &url, None, Some(param), None, ContentType::Json).await;
+    println!("Body: {:?}",&resp);
+    assert!(resp.is_err());
+}
+
+#[tokio::test]
+async fn test_request_post_timeout_success(){
+    build_logger("BACHUETECH", "BT.HTTP.UTILS", LogLevel::VERBOSE, LogTarget::STD_ERROR, None );
+    
+    let url = format!("{}{}/uh/api.php/users/","http",SERVER);
+
+    let mut param: HashMap<String, String> = HashMap::new();
+    param.insert("name".to_string(), "C.Brown".to_string());
+    let test_content = "{\"id\":3,\"name\":\"C.Brown\"}";
+
+    let http_client = HttpClient::new(false, true, None);
+
+    let resp = http_client.request_with_timeout("post",1000, &url, None, Some(param), None, ContentType::Json).await;
+    println!("Body: {:?}",&resp);
+    assert!(resp.is_ok());
 }
 
 #[tokio::test]

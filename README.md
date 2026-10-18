@@ -77,6 +77,8 @@ A simple HTTP wrapper to simplify POST and GET calls.
 * 0.9.1
     * Fix crate documentation using an inner doc comment
     * Minor clippy recommendation change
+* 0.9.2
+    * Added a new function request_with_timeout that receives the timeout in milliseconds for the request.
 
 ## License
 GPL-3.0-only
